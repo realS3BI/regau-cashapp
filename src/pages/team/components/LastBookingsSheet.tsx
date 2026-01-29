@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency, formatDateTime } from '@/lib/format';
-import { History, LayoutDashboard, Trash2 } from 'lucide-react';
+import { LayoutDashboard, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;

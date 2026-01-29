@@ -3,7 +3,7 @@ import { v } from 'convex/values';
 
 export const verifyPassword = mutation({
   args: { password: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (_, args) => {
     const adminPassword = process.env.ADMIN_PASSWORD;
     if (!adminPassword) {
       throw new Error('ADMIN_PASSWORD ist nicht konfiguriert');

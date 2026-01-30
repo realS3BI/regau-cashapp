@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+dist
+.convex
+.convex-dev
+convex/_generated
+.env
+.env.*
+*.log
+README.md

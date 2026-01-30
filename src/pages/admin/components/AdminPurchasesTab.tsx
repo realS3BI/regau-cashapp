@@ -10,16 +10,11 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -27,7 +22,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select';
 import {
   Table,
@@ -35,7 +30,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
 import { formatCurrency, formatDate, formatDateTime, formatTime } from '@/lib/format';
@@ -62,11 +57,11 @@ const AdminPurchasesTab = () => {
       setDeleteDialogOpen(false);
       setSelectedPurchase(null);
       toast.success('Erfolgreich', {
-        description: 'Kauf gelöscht'
+        description: 'Kauf gelöscht',
       });
     } catch (err) {
       toast.error('Fehler', {
-        description: err instanceof Error ? err.message : 'Fehler beim Löschen'
+        description: err instanceof Error ? err.message : 'Fehler beim Löschen',
       });
     }
   };
@@ -87,9 +82,7 @@ const AdminPurchasesTab = () => {
     }
     if (filterArticle.trim()) {
       const q = filterArticle.trim().toLowerCase();
-      list = list.filter((p) =>
-        p.items.some((item) => item.name.toLowerCase().includes(q))
-      );
+      list = list.filter((p) => p.items.some((item) => item.name.toLowerCase().includes(q)));
     }
     return list;
   }, [purchases, filterDateFrom, filterDateTo, filterTeamId, filterArticle]);
@@ -179,9 +172,7 @@ const AdminPurchasesTab = () => {
                       {formatTime(new Date(purchase.createdAt))}
                     </TableCell>
                     <TableCell className="py-4 font-semibold">{team?.name || '-'}</TableCell>
-                    <TableCell className="py-4">
-                      {purchase.items.length} Artikel
-                    </TableCell>
+                    <TableCell className="py-4">{purchase.items.length} Artikel</TableCell>
                     <TableCell className="py-4 font-bold text-primary">
                       {formatCurrency(purchase.totalAmount)}
                     </TableCell>
@@ -215,9 +206,7 @@ const AdminPurchasesTab = () => {
       >
         <DialogContent className="max-w-lg">
           <DialogHeader className="space-y-3 pb-4">
-            <DialogTitle className="text-xl font-bold">
-              Transaktion – gekaufte Artikel
-            </DialogTitle>
+            <DialogTitle className="text-xl font-bold">Transaktion – gekaufte Artikel</DialogTitle>
             {selectedPurchase && (
               <CardDescription className="text-base">
                 {teams?.find((tm) => tm._id === selectedPurchase.teamId)?.name} ·{' '}
@@ -255,10 +244,7 @@ const AdminPurchasesTab = () => {
                 Gesamtbetrag: {formatCurrency(selectedPurchase.totalAmount)}
               </p>
               <div className="flex justify-end pt-2">
-                <Button
-                  onClick={() => setDeleteDialogOpen(true)}
-                  variant="destructive"
-                >
+                <Button onClick={() => setDeleteDialogOpen(true)} variant="destructive">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Kauf löschen
                 </Button>
@@ -268,16 +254,11 @@ const AdminPurchasesTab = () => {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-      >
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Kauf löschen</AlertDialogTitle>
-            <AlertDialogDescription>
-              Diese Buchung wirklich löschen?
-            </AlertDialogDescription>
+            <AlertDialogDescription>Diese Buchung wirklich löschen?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Abbrechen</AlertDialogCancel>

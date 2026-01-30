@@ -9,5 +9,5 @@ export const verifyPassword = mutation({
       throw new Error('ADMIN_PASSWORD ist nicht konfiguriert');
     }
     return args.password === adminPassword;
-  }
+  },
 });

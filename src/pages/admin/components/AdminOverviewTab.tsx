@@ -16,17 +16,14 @@ const AdminOverviewTab = () => {
 
   const startOfTodayMs = getStartOfTodayMs();
 
-  const purchasesToday =
-    purchases?.filter((p) => p.createdAt >= startOfTodayMs) ?? [];
+  const purchasesToday = purchases?.filter((p) => p.createdAt >= startOfTodayMs) ?? [];
   const todayRevenue = purchasesToday.reduce((sum, p) => sum + p.totalAmount, 0);
   const todayItemsSold = purchasesToday.reduce(
     (sum, p) => sum + p.items.reduce((s, i) => s + i.quantity, 0),
     0
   );
-  const totalRevenue =
-    purchases?.reduce((sum, p) => sum + p.totalAmount, 0) ?? 0;
-  const avgPerSaleToday =
-    purchasesToday.length > 0 ? todayRevenue / purchasesToday.length : 0;
+  const totalRevenue = purchases?.reduce((sum, p) => sum + p.totalAmount, 0) ?? 0;
+  const avgPerSaleToday = purchasesToday.length > 0 ? todayRevenue / purchasesToday.length : 0;
 
   return (
     <div className="space-y-6">
@@ -56,9 +53,7 @@ const AdminOverviewTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="text-3xl font-bold tracking-tight">
-              {purchasesToday.length}
-            </p>
+            <p className="text-3xl font-bold tracking-tight">{purchasesToday.length}</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
@@ -69,9 +64,7 @@ const AdminOverviewTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="text-3xl font-bold tracking-tight">
-              {todayItemsSold}
-            </p>
+            <p className="text-3xl font-bold tracking-tight">{todayItemsSold}</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
@@ -97,9 +90,7 @@ const AdminOverviewTab = () => {
             <p className="text-3xl font-bold tracking-tight">
               {formatCurrency(Math.round(avgPerSaleToday))}
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Heutiger Umsatz
-            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Heutiger Umsatz</p>
           </CardContent>
         </Card>
       </div>

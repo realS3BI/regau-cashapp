@@ -19,7 +19,7 @@ import {
   ResizableDivider,
   TeamNotFound,
   TeamPageHeader,
-  TeamPageSkeleton
+  TeamPageSkeleton,
 } from '@/pages/team/components';
 
 const TeamPage = () => {
@@ -49,11 +49,7 @@ const TeamPage = () => {
     return <TeamNotFound />;
   }
 
-  const handleAddToCart = (product: {
-    _id: Id<'products'>;
-    name: string;
-    price: number;
-  }) => {
+  const handleAddToCart = (product: { _id: Id<'products'>; name: string; price: number }) => {
     addItem(product);
   };
 
@@ -67,20 +63,20 @@ const TeamPage = () => {
           name: item.name,
           price: item.price,
           productId: item.productId,
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         teamId: team._id,
-        totalAmount
+        totalAmount,
       });
 
       clearCart();
       toast.success('Erfolgreich', {
-        description: `Kauf abgeschlossen – ${formatCurrency(totalAmount)}`
+        description: `Kauf abgeschlossen – ${formatCurrency(totalAmount)}`,
       });
     } catch (error) {
       toast.error('Fehler', {
         description:
-          error instanceof Error ? error.message : 'Beim Bezahlen ist ein Fehler aufgetreten'
+          error instanceof Error ? error.message : 'Beim Bezahlen ist ein Fehler aufgetreten',
       });
     }
   };
@@ -129,25 +125,22 @@ const TeamPage = () => {
         <main className="flex-1 min-w-0 flex flex-col min-h-0">
           <ScrollArea className="min-h-0 flex-1">
             <div className="lg:hidden border-b bg-muted/20 pb-4">
-            <CategoryList
-              onSelectCategory={setSelectedCategoryId}
-              selectedCategoryId={selectedCategoryId}
-            />
-            <div className="px-4 pt-2">
-              <Button
-                className="w-full justify-start min-h-[48px] text-base font-medium gap-2"
-                onClick={() => setShowLastBookings(true)}
-                variant="outline"
-              >
-                <History className="h-5 w-5 shrink-0" />
-                Übersicht
-              </Button>
+              <CategoryList
+                onSelectCategory={setSelectedCategoryId}
+                selectedCategoryId={selectedCategoryId}
+              />
+              <div className="px-4 pt-2">
+                <Button
+                  className="w-full justify-start min-h-[48px] text-base font-medium gap-2"
+                  onClick={() => setShowLastBookings(true)}
+                  variant="outline"
+                >
+                  <History className="h-5 w-5 shrink-0" />
+                  Übersicht
+                </Button>
+              </div>
             </div>
-          </div>
-          <ProductGrid
-            categoryId={selectedCategoryId}
-            onAddToCart={handleAddToCart}
-          />
+            <ProductGrid categoryId={selectedCategoryId} onAddToCart={handleAddToCart} />
           </ScrollArea>
         </main>
 

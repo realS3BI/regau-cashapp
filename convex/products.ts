@@ -11,7 +11,7 @@ export const getByCategory = query({
       )
       .collect();
     return list.filter((p) => p.deletedAt === undefined);
-  }
+  },
 });
 
 export const listAllActive = query({
@@ -21,14 +21,14 @@ export const listAllActive = query({
     return all
       .filter((p) => p.active && p.deletedAt === undefined)
       .sort((a, b) => a.createdAt - b.createdAt);
-  }
+  },
 });
 
 export const listForAdmin = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query('products').collect();
-  }
+  },
 });
 
 export const create = mutation({
@@ -38,7 +38,7 @@ export const create = mutation({
     description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     name: v.string(),
-    price: v.number()
+    price: v.number(),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -50,9 +50,9 @@ export const create = mutation({
       imageUrl: args.imageUrl,
       name: args.name,
       price: args.price,
-      updatedAt: now
+      updatedAt: now,
     });
-  }
+  },
 });
 
 export const update = mutation({
@@ -63,20 +63,20 @@ export const update = mutation({
     id: v.id('products'),
     imageUrl: v.optional(v.string()),
     name: v.optional(v.string()),
-    price: v.optional(v.number())
+    price: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
     await ctx.db.patch(id, {
       ...updates,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     });
-  }
+  },
 });
 
 export const remove = mutation({
   args: { id: v.id('products') },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
-  }
+  },
 });

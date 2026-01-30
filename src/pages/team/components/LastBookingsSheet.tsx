@@ -4,12 +4,7 @@ import { api } from '../../../../convex/_generated/api';
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency, formatDateTime } from '@/lib/format';
 import { LayoutDashboard, Trash2 } from 'lucide-react';
@@ -36,7 +31,7 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
     if (!open) return null;
     return {
       endMs: Date.now(),
-      startMs: getStartOfTodayMs()
+      startMs: getStartOfTodayMs(),
     };
   }, [open]);
 
@@ -74,11 +69,11 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
     try {
       await removePurchase({ id: purchase._id });
       toast.success('Erfolgreich', {
-        description: 'Buchung gelöscht'
+        description: 'Buchung gelöscht',
       });
     } catch (err) {
       toast.error('Fehler', {
-        description: err instanceof Error ? err.message : 'Fehler beim Löschen'
+        description: err instanceof Error ? err.message : 'Fehler beim Löschen',
       });
     }
   };
@@ -95,26 +90,31 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
         <div className="mt-4 rounded-lg border bg-muted/30 p-3">
           <p className="text-muted-foreground text-xs">Alle Buchungen von heute</p>
           <p className="text-lg font-semibold text-primary">
-            {todayPurchases === undefined
-              ? '…'
-              : formatCurrency(todayTotal)}
+            {todayPurchases === undefined ? '…' : formatCurrency(todayTotal)}
           </p>
         </div>
         <Tabs className="mt-4 flex flex-1 min-h-0 flex-col" defaultValue="bookings">
           <TabsList className="grid w-full grid-cols-2 gap-0.5 p-1 h-auto">
-            <TabsTrigger className="flex items-center justify-center rounded-l-md rounded-r-sm" value="bookings">
+            <TabsTrigger
+              className="flex items-center justify-center rounded-l-md rounded-r-sm"
+              value="bookings"
+            >
               Letzte Buchungen
             </TabsTrigger>
-            <TabsTrigger className="flex items-center justify-center rounded-r-md rounded-l-sm" value="products">
+            <TabsTrigger
+              className="flex items-center justify-center rounded-r-md rounded-l-sm"
+              value="products"
+            >
               Produkte
             </TabsTrigger>
           </TabsList>
-          <TabsContent className="flex-1 -mx-6 px-6 mt-6 min-h-0 data-[state=inactive]:hidden flex flex-col" value="bookings">
+          <TabsContent
+            className="flex-1 -mx-6 px-6 mt-6 min-h-0 data-[state=inactive]:hidden flex flex-col"
+            value="bookings"
+          >
             <ScrollArea className="min-h-0 flex-1">
               {recentPurchases === undefined ? (
-                <div className="text-muted-foreground text-sm py-8 text-center">
-                  Wird geladen…
-                </div>
+                <div className="text-muted-foreground text-sm py-8 text-center">Wird geladen…</div>
               ) : recentPurchases.length === 0 ? (
                 <div className="text-muted-foreground text-sm py-8 text-center">
                   Keine Buchungen
@@ -146,7 +146,9 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {purchase.items
-                            .map((i: { name: string; quantity: number }) => `${i.name} × ${i.quantity}`)
+                            .map(
+                              (i: { name: string; quantity: number }) => `${i.name} × ${i.quantity}`
+                            )
                             .join(', ')}
                         </div>
                         <div className="text-sm font-semibold text-primary">
@@ -159,12 +161,13 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
               )}
             </ScrollArea>
           </TabsContent>
-          <TabsContent className="flex-1 -mx-6 px-6 mt-3 min-h-0 data-[state=inactive]:hidden flex flex-col" value="products">
+          <TabsContent
+            className="flex-1 -mx-6 px-6 mt-3 min-h-0 data-[state=inactive]:hidden flex flex-col"
+            value="products"
+          >
             <ScrollArea className="min-h-0 flex-1">
               {todayPurchases === undefined ? (
-                <div className="text-muted-foreground text-sm py-8 text-center">
-                  Wird geladen…
-                </div>
+                <div className="text-muted-foreground text-sm py-8 text-center">Wird geladen…</div>
               ) : productSalesToday.length === 0 ? (
                 <div className="text-muted-foreground text-sm py-8 text-center">
                   Heute noch keine Verkäufe
@@ -177,9 +180,7 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
                       className="flex items-center justify-between rounded-lg border bg-muted/20 px-3 py-2"
                     >
                       <span className="text-sm font-medium">{name}</span>
-                      <span className="text-sm font-semibold text-primary">
-                        {quantity}×
-                      </span>
+                      <span className="text-sm font-semibold text-primary">{quantity}×</span>
                     </li>
                   ))}
                 </ul>

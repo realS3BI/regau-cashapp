@@ -9,11 +9,11 @@ export const create = mutation({
         productId: v.id('products'),
         name: v.string(),
         price: v.number(),
-        quantity: v.number()
+        quantity: v.number(),
       })
     ),
     totalAmount: v.number(),
-    createdBy: v.optional(v.string())
+    createdBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     if (args.items.length === 0) {
@@ -25,9 +25,9 @@ export const create = mutation({
       items: args.items,
       totalAmount: args.totalAmount,
       createdAt: Date.now(),
-      createdBy: args.createdBy
+      createdBy: args.createdBy,
     });
-  }
+  },
 });
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -40,13 +40,13 @@ export const getByTeam = query({
       .withIndex('by_team_created', (q) => q.eq('teamId', args.teamId))
       .order('desc')
       .collect();
-  }
+  },
 });
 
 export const getRecentByTeam = query({
   args: {
     limit: v.optional(v.number()),
-    teamId: v.id('teams')
+    teamId: v.id('teams'),
   },
   handler: async (ctx, args) => {
     const limit = args.limit ?? 20;
@@ -55,46 +55,43 @@ export const getRecentByTeam = query({
       .withIndex('by_team_created', (q) => q.eq('teamId', args.teamId))
       .order('desc')
       .take(limit);
-  }
+  },
 });
 
 export const getPurchasesByTeamInRange = query({
   args: {
     endMs: v.number(),
     startMs: v.number(),
-    teamId: v.id('teams')
+    teamId: v.id('teams'),
   },
   handler: async (ctx, args) => {
     return await ctx.db
       .query('purchases')
       .withIndex('by_team_created', (q) =>
-        q
-          .eq('teamId', args.teamId)
-          .gte('createdAt', args.startMs)
-          .lte('createdAt', args.endMs)
+        q.eq('teamId', args.teamId).gte('createdAt', args.startMs).lte('createdAt', args.endMs)
       )
       .order('desc')
       .collect();
-  }
+  },
 });
 
 export const getAll = query({
   handler: async (ctx) => {
     return await ctx.db.query('purchases').order('desc').collect();
-  }
+  },
 });
 
 export const getById = query({
   args: { id: v.id('purchases') },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
-  }
+  },
 });
 
 export const remove = mutation({
   args: {
     id: v.id('purchases'),
-    isAdmin: v.optional(v.boolean())
+    isAdmin: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const purchase = await ctx.db.get(args.id);
@@ -108,5 +105,5 @@ export const remove = mutation({
       }
     }
     await ctx.db.delete(args.id);
-  }
+  },
 });

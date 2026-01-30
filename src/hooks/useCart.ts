@@ -16,7 +16,7 @@ const normalizeByProductId = (items: CartItem[]): CartItem[] => {
     if (existing) {
       byId.set(item.productId, {
         ...existing,
-        quantity: existing.quantity + item.quantity
+        quantity: existing.quantity + item.quantity,
       });
     } else {
       byId.set(item.productId, { ...item });
@@ -36,8 +36,8 @@ export const useCart = () => {
           name: product.name,
           price: product.price,
           productId: product._id,
-          quantity: 1
-        }
+          quantity: 1,
+        },
       ];
       return normalizeByProductId(next);
     });
@@ -47,15 +47,18 @@ export const useCart = () => {
     setItems((prev) => prev.filter((item) => item.productId !== productId));
   }, []);
 
-  const updateQuantity = useCallback((productId: Id<'products'>, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(productId);
-      return;
-    }
-    setItems((prev) =>
-      prev.map((item) => (item.productId === productId ? { ...item, quantity } : item))
-    );
-  }, [removeItem]);
+  const updateQuantity = useCallback(
+    (productId: Id<'products'>, quantity: number) => {
+      if (quantity <= 0) {
+        removeItem(productId);
+        return;
+      }
+      setItems((prev) =>
+        prev.map((item) => (item.productId === productId ? { ...item, quantity } : item))
+      );
+    },
+    [removeItem]
+  );
 
   const clearCart = useCallback(() => {
     setItems([]);
@@ -76,6 +79,6 @@ export const useCart = () => {
     updateQuantity,
     clearCart,
     getTotal,
-    getItemCount
+    getItemCount,
   };
 };

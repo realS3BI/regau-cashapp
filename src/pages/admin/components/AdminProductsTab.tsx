@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,7 +19,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select';
 import {
   Table,
@@ -27,7 +27,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -48,7 +48,7 @@ const AdminProductsTab = () => {
     categoryId: '',
     description: '',
     name: '',
-    price: ''
+    price: '',
   });
 
   const handleCreateProduct = async () => {
@@ -60,16 +60,16 @@ const AdminProductsTab = () => {
         categoryId: form.categoryId as Id<'categories'>,
         description: form.description || undefined,
         name: form.name,
-        price: Math.round(parseFloat(form.price) * 100)
+        price: Math.round(parseFloat(form.price) * 100),
       });
       setDialogOpen(false);
       setForm({ active: true, categoryId: '', description: '', name: '', price: '' });
       toast.success('Erfolgreich', {
-        description: 'Produkt erstellt'
+        description: 'Produkt erstellt',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Erstellen'
+        description: error instanceof Error ? error.message : 'Fehler beim Erstellen',
       });
     }
   };
@@ -84,17 +84,17 @@ const AdminProductsTab = () => {
         description: form.description || undefined,
         id: editingProduct,
         name: form.name || undefined,
-        price: form.price ? Math.round(parseFloat(form.price) * 100) : undefined
+        price: form.price ? Math.round(parseFloat(form.price) * 100) : undefined,
       });
       setDialogOpen(false);
       setEditingProduct(null);
       setForm({ active: true, categoryId: '', description: '', name: '', price: '' });
       toast.success('Erfolgreich', {
-        description: 'Produkt aktualisiert'
+        description: 'Produkt aktualisiert',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren'
+        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren',
       });
     }
   };
@@ -106,11 +106,11 @@ const AdminProductsTab = () => {
       await deleteProduct({ id });
       onSuccess?.();
       toast.success('Erfolgreich', {
-        description: 'Produkt gelöscht'
+        description: 'Produkt gelöscht',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Löschen'
+        description: error instanceof Error ? error.message : 'Fehler beim Löschen',
       });
     }
   };
@@ -129,7 +129,7 @@ const AdminProductsTab = () => {
       categoryId: product.categoryId,
       description: product.description || '',
       name: product.name,
-      price: (product.price / 100).toFixed(2)
+      price: (product.price / 100).toFixed(2),
     });
     setDialogOpen(true);
   };
@@ -144,10 +144,7 @@ const AdminProductsTab = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight">Produkte</h2>
-        <Button
-          className="min-h-[44px] font-semibold gap-2"
-          onClick={openCreate}
-        >
+        <Button className="min-h-[44px] font-semibold gap-2" onClick={openCreate}>
           <Plus className="h-5 w-5" />
           Produkt erstellen
         </Button>
@@ -200,9 +197,7 @@ const AdminProductsTab = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
               <Plus className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground text-lg font-medium">
-              Keine Produkte gefunden
-            </p>
+            <p className="text-muted-foreground text-lg font-medium">Keine Produkte gefunden</p>
           </CardContent>
         </Card>
       )}

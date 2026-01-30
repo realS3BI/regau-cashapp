@@ -13,20 +13,20 @@ const TeamPageSkeleton = () => (
       <aside className="hidden lg:block border-r bg-muted/20 shrink-0 w-[280px]">
         <ScrollArea className="h-full min-h-0">
           <div className="p-6 space-y-3">
-          <Skeleton className="h-6 w-24 mb-3" />
-          <Skeleton className="h-12 w-full rounded-lg" />
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full rounded-lg" />
-          ))}
+            <Skeleton className="h-6 w-24 mb-3" />
+            <Skeleton className="h-12 w-full rounded-lg" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-lg" />
+            ))}
           </div>
         </ScrollArea>
       </aside>
       <main className="flex-1 min-w-0 p-4 lg:p-6 flex flex-col min-h-0">
         <ScrollArea className="min-h-0 flex-1">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pr-4">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="rounded-xl aspect-[3/4] w-full" />
-          ))}
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className="rounded-xl aspect-[3/4] w-full" />
+            ))}
           </div>
         </ScrollArea>
       </main>

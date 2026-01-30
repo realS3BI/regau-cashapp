@@ -77,9 +77,7 @@ const ProductGrid = ({ categoryId, onAddToCart }: ProductGridProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 pt-1 px-4">
-            <p className="text-sm text-muted-foreground">
-              {formatCurrency(product.price)}
-            </p>
+            <p className="text-sm text-muted-foreground">{formatCurrency(product.price)}</p>
           </CardContent>
         </Card>
       ))}

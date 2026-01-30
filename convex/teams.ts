@@ -8,13 +8,13 @@ export const list = query({
   handler: async (ctx) => {
     const all = await ctx.db.query('teams').order('desc').collect();
     return all.filter(isTeamVisible);
-  }
+  },
 });
 
 export const listForAdmin = query({
   handler: async (ctx) => {
     return await ctx.db.query('teams').order('desc').collect();
-  }
+  },
 });
 
 export const getBySlug = query({
@@ -26,13 +26,13 @@ export const getBySlug = query({
       .first();
     if (!doc || !isTeamVisible(doc)) return null;
     return doc;
-  }
+  },
 });
 
 export const create = mutation({
   args: {
     name: v.string(),
-    slug: v.string()
+    slug: v.string(),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -48,9 +48,9 @@ export const create = mutation({
       active: true,
       createdAt: Date.now(),
       name: args.name,
-      slug: args.slug
+      slug: args.slug,
     });
-  }
+  },
 });
 
 export const update = mutation({
@@ -58,7 +58,7 @@ export const update = mutation({
     active: v.optional(v.boolean()),
     id: v.id('teams'),
     name: v.optional(v.string()),
-    slug: v.optional(v.string())
+    slug: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
@@ -84,7 +84,7 @@ export const update = mutation({
     if (Object.keys(patch).length === 0) return id;
     await ctx.db.patch(id, patch);
     return id;
-  }
+  },
 });
 
 export const remove = mutation({
@@ -94,5 +94,5 @@ export const remove = mutation({
     if (!team) throw new Error('Team nicht gefunden');
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
     return args.id;
-  }
+  },
 });

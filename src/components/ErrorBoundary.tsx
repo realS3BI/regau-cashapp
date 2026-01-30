@@ -12,7 +12,7 @@ interface State {
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = {
-    error: null
+    error: null,
   };
 
   static getDerivedStateFromError(error: Error): State {
@@ -51,12 +51,10 @@ export class ErrorBoundary extends Component<Props, State> {
                 />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-foreground">
-              Etwas ist schiefgelaufen
-            </h1>
+            <h1 className="text-xl font-semibold text-foreground">Etwas ist schiefgelaufen</h1>
             <p className="text-sm text-muted-foreground">
-              Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu
-              oder versuche es später erneut.
+              Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu oder versuche es
+              später erneut.
             </p>
             {process.env.NODE_ENV === 'development' && (
               <ScrollArea className="max-h-32 w-full rounded-lg border border-border bg-muted">

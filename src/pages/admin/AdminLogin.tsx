@@ -32,16 +32,16 @@ const AdminLogin = () => {
         setAdminAuth();
         navigate('/admin');
         toast.success('Erfolgreich', {
-          description: 'Erfolgreich angemeldet'
+          description: 'Erfolgreich angemeldet',
         });
       } else {
         toast.error('Fehler', {
-          description: 'Falsches Passwort'
+          description: 'Falsches Passwort',
         });
       }
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten'
+        description: error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten',
       });
     } finally {
       setIsLoading(false);
@@ -79,9 +79,9 @@ const AdminLogin = () => {
                 autoFocus
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full min-h-[48px] text-base font-semibold" 
+            <Button
+              type="submit"
+              className="w-full min-h-[48px] text-base font-semibold"
               disabled={isLoading}
             >
               {isLoading ? 'Lädt...' : 'Anmelden'}

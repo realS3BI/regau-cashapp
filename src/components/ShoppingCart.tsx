@@ -24,7 +24,7 @@ const groupItemsByProduct = (items: CartItem[]): CartItem[] => {
     if (existing) {
       byId.set(item.productId, {
         ...existing,
-        quantity: existing.quantity + item.quantity
+        quantity: existing.quantity + item.quantity,
       });
     } else {
       byId.set(item.productId, { ...item });
@@ -38,7 +38,7 @@ const ShoppingCart = ({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
-  isCheckingOut = false
+  isCheckingOut = false,
 }: ShoppingCartProps) => {
   const groupedItems = useMemo(() => groupItemsByProduct(items), [items]);
   const total = useMemo(

@@ -7,7 +7,7 @@ export default defineSchema({
     createdAt: v.number(),
     deletedAt: v.optional(v.number()),
     name: v.string(),
-    slug: v.string()
+    slug: v.string(),
   }).index('by_slug', ['slug']),
 
   categories: defineTable({
@@ -15,7 +15,7 @@ export default defineSchema({
     createdAt: v.number(),
     deletedAt: v.optional(v.number()),
     name: v.string(),
-    order: v.number()
+    order: v.number(),
   }).index('by_order', ['order']),
 
   products: defineTable({
@@ -27,7 +27,7 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     name: v.string(),
     price: v.number(),
-    updatedAt: v.number()
+    updatedAt: v.number(),
   })
     .index('by_category', ['categoryId'])
     .index('by_category_active', ['categoryId', 'active']),
@@ -39,13 +39,13 @@ export default defineSchema({
         productId: v.id('products'),
         name: v.string(),
         price: v.number(),
-        quantity: v.number()
+        quantity: v.number(),
       })
     ),
     totalAmount: v.number(),
     createdAt: v.number(),
-    createdBy: v.optional(v.string())
+    createdBy: v.optional(v.string()),
   })
     .index('by_team', ['teamId'])
-    .index('by_team_created', ['teamId', 'createdAt'])
+    .index('by_team_created', ['teamId', 'createdAt']),
 });

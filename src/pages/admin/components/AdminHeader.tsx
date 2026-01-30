@@ -23,11 +23,7 @@ const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
           </Button>
           <h1 className="text-3xl font-bold tracking-tight">Admin-Bereich</h1>
         </div>
-        <Button
-          className="min-h-[44px] font-semibold gap-2"
-          onClick={onLogout}
-          variant="outline"
-        >
+        <Button className="min-h-[44px] font-semibold gap-2" onClick={onLogout} variant="outline">
           <LogOut className="h-5 w-5" />
           <span className="hidden sm:inline">Abmelden</span>
         </Button>

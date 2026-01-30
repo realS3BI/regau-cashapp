@@ -24,12 +24,7 @@ const TeamPageHeader = ({ isAdminLoggedIn, onLogout, teamName }: TeamPageHeaderP
         </Button>
         <h1 className="text-2xl font-bold tracking-tight flex-1">{teamName}</h1>
         {isAdminLoggedIn && (
-          <Button
-            className="min-h-[44px] gap-2"
-            onClick={onLogout}
-            size="sm"
-            variant="outline"
-          >
+          <Button className="min-h-[44px] gap-2" onClick={onLogout} size="sm" variant="outline">
             <LogOut className="h-5 w-5" />
             <span className="hidden sm:inline">Abmelden</span>
           </Button>

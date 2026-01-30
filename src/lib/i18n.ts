@@ -65,5 +65,5 @@ export const t = {
   verkaeufeHeute: 'Verkäufe heute',
   von: 'Von',
   warenkorb: 'Warenkorb',
-  zurueck: 'Zurück'
+  zurueck: 'Zurück',
 };

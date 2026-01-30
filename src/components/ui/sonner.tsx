@@ -12,24 +12,24 @@ const Toaster = ({ ...props }: ToasterProps) => {
         info: <Info className="size-4" />,
         loading: <Loader2 className="size-4 animate-spin" />,
         success: <CircleCheck className="size-4" />,
-        warning: <TriangleAlert className="size-4" />
+        warning: <TriangleAlert className="size-4" />,
       }}
       style={
         {
           '--border-radius': 'var(--radius)',
           '--normal-bg': 'var(--popover)',
           '--normal-border': 'var(--border)',
-          '--normal-text': 'var(--popover-foreground)'
+          '--normal-text': 'var(--popover-foreground)',
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: 'cn-toast'
-        }
+          toast: 'cn-toast',
+        },
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
 export { Toaster };

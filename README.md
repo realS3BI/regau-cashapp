@@ -29,6 +29,7 @@ Eine moderne Einkaufs-App für Teams mit PWA-Unterstützung, entwickelt mit Reac
 ### Installation
 
 1. **Dependencies installieren:**
+
    ```bash
    npm install
    # oder
@@ -36,13 +37,16 @@ Eine moderne Einkaufs-App für Teams mit PWA-Unterstützung, entwickelt mit Reac
    ```
 
 2. **Convex Setup:**
+
    ```bash
    npx convex dev
    ```
+
    Folgen Sie den Anweisungen, um Ihr Convex-Projekt zu initialisieren.
 
 3. **Umgebungsvariablen:**
    Erstellen Sie eine `.env` Datei im Root-Verzeichnis:
+
    ```env
    VITE_CONVEX_URL=https://your-project.convex.cloud
    ADMIN_PASSWORD=your-secure-password-here
@@ -50,9 +54,11 @@ Eine moderne Einkaufs-App für Teams mit PWA-Unterstützung, entwickelt mit Reac
 
 4. **Shadcn/ui – weitere Komponenten:**
    Die Konfiguration liegt in `components.json`. Neue Komponenten hinzufügen:
+
    ```bash
    pnpm dlx shadcn@latest add <komponente>
    ```
+
    Beispiel: `pnpm dlx shadcn@latest add dropdown-menu`
 
 5. **PWA Icons:**

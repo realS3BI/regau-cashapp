@@ -20,9 +20,7 @@ const HomePage = () => {
             </div>
             <h1 className="text-5xl font-bold tracking-tight">Regau Cash App</h1>
           </div>
-          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
-            Team auswählen
-          </p>
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Team auswählen</p>
           <Button variant="link" className="text-muted-foreground" asChild>
             <Link to="/so-funktionierts">
               <HelpCircle className="mr-2 h-4 w-4" />
@@ -53,8 +51,8 @@ const HomePage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full min-h-[44px]"
                 onClick={() => navigate('/admin/login')}
               >
@@ -76,8 +74,8 @@ const HomePage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-2">
-                  <Button 
-                    className="w-full min-h-[44px] font-semibold" 
+                  <Button
+                    className="w-full min-h-[44px] font-semibold"
                     onClick={() => navigate(`/${team.slug}`)}
                   >
                     Auswählen
@@ -94,13 +92,11 @@ const HomePage = () => {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-4 text-muted-foreground">
-                Administration
-              </span>
+              <span className="bg-background px-4 text-muted-foreground">Administration</span>
             </div>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="min-h-[44px] px-8"
             onClick={() => navigate('/admin/login')}
           >

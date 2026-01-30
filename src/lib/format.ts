@@ -5,22 +5,22 @@
 export const formatCurrency = (amountInCents: number) => {
   return new Intl.NumberFormat('de-DE', {
     currency: 'EUR',
-    style: 'currency'
+    style: 'currency',
   }).format(amountInCents / 100);
 };
-  
+
 export const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat('de-DE', {
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   }).format(date);
 };
 
 export const formatTime = (date: Date) => {
   return new Intl.DateTimeFormat('de-DE', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date);
 };
 

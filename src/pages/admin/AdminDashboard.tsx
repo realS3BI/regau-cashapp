@@ -13,7 +13,7 @@ import {
   AdminOverviewTab,
   AdminProductsTab,
   AdminPurchasesTab,
-  AdminTeamsTab
+  AdminTeamsTab,
 } from './components';
 
 const AdminDashboard = () => {

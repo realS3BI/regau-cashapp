@@ -21,9 +21,7 @@ const getStoredWidth = (key: string, defaultVal: number): number => {
 };
 
 export const useResizablePanels = () => {
-  const [cartWidth, setCartWidth] = useState(() =>
-    getStoredWidth(CART_WIDTH_KEY, CART_DEFAULT)
-  );
+  const [cartWidth, setCartWidth] = useState(() => getStoredWidth(CART_WIDTH_KEY, CART_DEFAULT));
   const [categoryWidth, setCategoryWidth] = useState(() =>
     getStoredWidth(CATEGORY_WIDTH_KEY, CATEGORY_DEFAULT)
   );
@@ -93,6 +91,6 @@ export const useResizablePanels = () => {
   return {
     cartWidth,
     categoryWidth,
-    setResizing
+    setResizing,
   };
 };

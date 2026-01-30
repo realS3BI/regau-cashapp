@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +20,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -49,13 +49,13 @@ const AdminTeamsTab = () => {
 
     if (!name) {
       toast.error('Fehler', {
-        description: 'Bitte einen Team-Namen eingeben'
+        description: 'Bitte einen Team-Namen eingeben',
       });
       return;
     }
     if (!slug) {
       toast.error('Fehler', {
-        description: 'Bitte einen gültigen Slug eingeben (z.B. aus dem Namen abgeleitet)'
+        description: 'Bitte einen gültigen Slug eingeben (z.B. aus dem Namen abgeleitet)',
       });
       return;
     }
@@ -66,11 +66,11 @@ const AdminTeamsTab = () => {
       setEditingTeam(null);
       setForm({ active: true, name: '', slug: '' });
       toast.success('Erfolgreich', {
-        description: 'Team erstellt'
+        description: 'Team erstellt',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Erstellen des Teams'
+        description: error instanceof Error ? error.message : 'Fehler beim Erstellen des Teams',
       });
     }
   };
@@ -82,13 +82,13 @@ const AdminTeamsTab = () => {
 
     if (!name) {
       toast.error('Fehler', {
-        description: 'Bitte einen Team-Namen eingeben'
+        description: 'Bitte einen Team-Namen eingeben',
       });
       return;
     }
     if (!slug) {
       toast.error('Fehler', {
-        description: 'Bitte einen gültigen Slug eingeben'
+        description: 'Bitte einen gültigen Slug eingeben',
       });
       return;
     }
@@ -97,17 +97,17 @@ const AdminTeamsTab = () => {
         active: form.active,
         id: editingTeam,
         name,
-        slug
+        slug,
       });
       setDialogOpen(false);
       setEditingTeam(null);
       setForm({ active: true, name: '', slug: '' });
       toast.success('Erfolgreich', {
-        description: 'Team aktualisiert'
+        description: 'Team aktualisiert',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren'
+        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren',
       });
     }
   };
@@ -120,11 +120,11 @@ const AdminTeamsTab = () => {
       setEditingTeam(null);
       setForm({ active: true, name: '', slug: '' });
       toast.success('Erfolgreich', {
-        description: 'Team gelöscht'
+        description: 'Team gelöscht',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Löschen'
+        description: error instanceof Error ? error.message : 'Fehler beim Löschen',
       });
     }
   };
@@ -134,7 +134,7 @@ const AdminTeamsTab = () => {
     setForm({
       active: team.active !== false,
       name: team.name,
-      slug: team.slug
+      slug: team.slug,
     });
     setDialogOpen(true);
   };
@@ -149,10 +149,7 @@ const AdminTeamsTab = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight">Teams verwalten</h2>
-        <Button
-          className="min-h-[44px] font-semibold gap-2"
-          onClick={openCreate}
-        >
+        <Button className="min-h-[44px] font-semibold gap-2" onClick={openCreate}>
           <Plus className="h-5 w-5" />
           Team erstellen
         </Button>
@@ -190,11 +187,7 @@ const AdminTeamsTab = () => {
                     )}
                   </TableCell>
                   <TableCell className="py-4">
-                    {team.deletedAt != null ? (
-                      <Badge variant="destructive">Gelöscht</Badge>
-                    ) : (
-                      '-'
-                    )}
+                    {team.deletedAt != null ? <Badge variant="destructive">Gelöscht</Badge> : '-'}
                   </TableCell>
                 </TableRow>
               ))}
@@ -207,13 +200,8 @@ const AdminTeamsTab = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
               <Plus className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground text-lg font-medium">
-              Noch keine Teams vorhanden
-            </p>
-            <Button
-              className="min-h-[44px] font-semibold gap-2"
-              onClick={openCreate}
-            >
+            <p className="text-muted-foreground text-lg font-medium">Noch keine Teams vorhanden</p>
+            <Button className="min-h-[44px] font-semibold gap-2" onClick={openCreate}>
               <Plus className="h-5 w-5" />
               Team erstellen
             </Button>
@@ -256,7 +244,7 @@ const AdminTeamsTab = () => {
                   setForm((prev) => ({
                     ...prev,
                     name,
-                    slug: prev.slug || generateSlug(name)
+                    slug: prev.slug || generateSlug(name),
                   }));
                 }}
               />

@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +20,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -42,16 +42,16 @@ const AdminCategoriesTab = () => {
       await createCategory({
         active: form.active,
         name: form.name,
-        order: form.order ?? maxOrder
+        order: form.order ?? maxOrder,
       });
       setDialogOpen(false);
       setForm({ active: true, name: '', order: 0 });
       toast.success('Erfolgreich', {
-        description: 'Kategorie erstellt'
+        description: 'Kategorie erstellt',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Erstellen'
+        description: error instanceof Error ? error.message : 'Fehler beim Erstellen',
       });
     }
   };
@@ -64,17 +64,17 @@ const AdminCategoriesTab = () => {
         active: form.active,
         id: editingCategory,
         name: form.name || undefined,
-        order: form.order !== undefined ? form.order : undefined
+        order: form.order !== undefined ? form.order : undefined,
       });
       setDialogOpen(false);
       setEditingCategory(null);
       setForm({ active: true, name: '', order: 0 });
       toast.success('Erfolgreich', {
-        description: 'Kategorie aktualisiert'
+        description: 'Kategorie aktualisiert',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren'
+        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren',
       });
     }
   };
@@ -86,11 +86,11 @@ const AdminCategoriesTab = () => {
       await deleteCategory({ id });
       onSuccess?.();
       toast.success('Erfolgreich', {
-        description: 'Kategorie gelöscht'
+        description: 'Kategorie gelöscht',
       });
     } catch (error) {
       toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Löschen'
+        description: error instanceof Error ? error.message : 'Fehler beim Löschen',
       });
     }
   };
@@ -105,7 +105,7 @@ const AdminCategoriesTab = () => {
     setForm({
       active: category.active ?? true,
       name: category.name,
-      order: category.order
+      order: category.order,
     });
     setDialogOpen(true);
   };
@@ -120,10 +120,7 @@ const AdminCategoriesTab = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight">Kategorien</h2>
-        <Button
-          className="min-h-[44px] font-semibold gap-2"
-          onClick={openCreate}
-        >
+        <Button className="min-h-[44px] font-semibold gap-2" onClick={openCreate}>
           <Plus className="h-5 w-5" />
           Kategorie erstellen
         </Button>
@@ -169,9 +166,7 @@ const AdminCategoriesTab = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
               <Plus className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground text-lg font-medium">
-              Keine Kategorien gefunden
-            </p>
+            <p className="text-muted-foreground text-lg font-medium">Keine Kategorien gefunden</p>
           </CardContent>
         </Card>
       )}
@@ -204,9 +199,7 @@ const AdminCategoriesTab = () => {
                 className="min-h-[48px]"
                 type="number"
                 value={form.order}
-                onChange={(e) =>
-                  setForm({ ...form, order: parseInt(e.target.value) || 0 })
-                }
+                onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 0 })}
               />
             </div>
             <div className="flex items-center space-x-3 pt-2">

@@ -10,9 +10,12 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+ARG CONVEX_DEPLOY_KEY
+ENV CONVEX_DEPLOY_KEY=$CONVEX_DEPLOY_KEY
+RUN npx convex deploy
+
 ARG VITE_CONVEX_URL
 ENV VITE_CONVEX_URL=$VITE_CONVEX_URL
-
 RUN pnpm run build
 
 # Runtime – Coolify übernimmt Reverse-Proxy

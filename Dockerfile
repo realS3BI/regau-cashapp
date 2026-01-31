@@ -29,7 +29,7 @@ RUN apk update && apk upgrade --no-cache
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 
-RUN pnpm add -g serve
+RUN npm install -g serve
 EXPOSE 3000
 
 CMD ["serve", "dist", "-s", "-l", "3000"]

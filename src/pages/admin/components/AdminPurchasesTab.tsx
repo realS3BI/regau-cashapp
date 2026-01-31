@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
-import { useMutation, useQuery } from 'convex/react';
+import { useMemo, useState } from 'react';
+import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
-import { Doc } from '../../../../convex/_generated/dataModel';
+import { Id } from '../../../../convex/_generated/dataModel';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,30 +33,56 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { formatCurrency, formatDate, formatDateTime, formatTime } from '@/lib/format';
 import { ShoppingCart, Trash2 } from 'lucide-react';
 
+const INITIAL_PAGE_SIZE = 30;
+const LOAD_MORE_PAGE_SIZE = 50;
+
+const TABLE_SKELETON_ROWS = 10;
+
 const AdminPurchasesTab = () => {
-  const purchases = useQuery(api.purchases.getAll);
   const teams = useQuery(api.teams.listForAdmin);
   const removePurchase = useMutation(api.purchases.remove);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedPurchase, setSelectedPurchase] = useState<Doc<'purchases'> | null>(null);
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
   const [filterTeamId, setFilterTeamId] = useState('');
-  const [filterArticle, setFilterArticle] = useState('');
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState<Id<'purchases'> | null>(null);
+
+  const filterOpts = useMemo(() => {
+    const from = filterDateFrom ? new Date(filterDateFrom).setHours(0, 0, 0, 0) : undefined;
+    const to = filterDateTo ? new Date(filterDateTo).setHours(23, 59, 59, 999) : undefined;
+    return {
+      dateFrom: from,
+      dateTo: to,
+      teamId: filterTeamId ? (filterTeamId as Id<'teams'>) : undefined,
+    };
+  }, [filterDateFrom, filterDateTo, filterTeamId]);
+
+  const { loadMore, results, status } = usePaginatedQuery(
+    api.purchases.getAllPaginatedList,
+    filterOpts,
+    { initialNumItems: INITIAL_PAGE_SIZE }
+  );
+
+  const filteredPurchases = results ?? [];
+  const selectedPurchase =
+    selectedPurchaseId != null
+      ? (filteredPurchases.find((p) => p._id === selectedPurchaseId) ?? null)
+      : null;
 
   const handleDeletePurchase = async () => {
-    if (!selectedPurchase) return;
+    if (!selectedPurchaseId) return;
     try {
-      await removePurchase({ id: selectedPurchase._id, isAdmin: true });
+      await removePurchase({ id: selectedPurchaseId, isAdmin: true });
       setDetailOpen(false);
       setDeleteDialogOpen(false);
-      setSelectedPurchase(null);
+      setSelectedPurchaseId(null);
       toast.success('Erfolgreich', {
         description: 'Kauf gelöscht',
       });
@@ -66,26 +93,7 @@ const AdminPurchasesTab = () => {
     }
   };
 
-  const filteredPurchases = useMemo(() => {
-    if (!purchases) return [];
-    let list = [...purchases];
-    if (filterDateFrom) {
-      const fromTs = new Date(filterDateFrom).setHours(0, 0, 0, 0);
-      list = list.filter((p) => p.createdAt >= fromTs);
-    }
-    if (filterDateTo) {
-      const toTs = new Date(filterDateTo).setHours(23, 59, 59, 999);
-      list = list.filter((p) => p.createdAt <= toTs);
-    }
-    if (filterTeamId) {
-      list = list.filter((p) => p.teamId === filterTeamId);
-    }
-    if (filterArticle.trim()) {
-      const q = filterArticle.trim().toLowerCase();
-      list = list.filter((p) => p.items.some((item) => item.name.toLowerCase().includes(q)));
-    }
-    return list;
-  }, [purchases, filterDateFrom, filterDateTo, filterTeamId, filterArticle]);
+  const isLoading = status === 'LoadingFirstPage';
 
   return (
     <div className="space-y-6">
@@ -129,19 +137,48 @@ const AdminPurchasesTab = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2 flex-1 min-w-[180px]">
-          <Label className="text-sm font-semibold">Artikel</Label>
-          <Input
-            className="min-h-[44px] w-full"
-            type="search"
-            placeholder="Suchen"
-            value={filterArticle}
-            onChange={(e) => setFilterArticle(e.target.value)}
-          />
-        </div>
       </div>
 
-      {filteredPurchases.length > 0 ? (
+      {!isLoading && (
+        <p className="text-sm text-muted-foreground">{filteredPurchases.length} Einträge geladen</p>
+      )}
+
+      {isLoading ? (
+        <Card className="shadow-md">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="h-14 font-bold">Datum</TableHead>
+                <TableHead className="h-14 font-bold">Uhrzeit</TableHead>
+                <TableHead className="h-14 font-bold">Team</TableHead>
+                <TableHead className="h-14 font-bold">Artikel</TableHead>
+                <TableHead className="h-14 font-bold">Gesamtbetrag</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: TABLE_SKELETON_ROWS }).map((_, i) => (
+                <TableRow key={i} className="hover:bg-transparent">
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-24" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-16" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-28" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-20" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-16" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      ) : filteredPurchases.length > 0 ? (
         <Card className="shadow-md">
           <Table>
             <TableHeader>
@@ -161,7 +198,7 @@ const AdminPurchasesTab = () => {
                     key={purchase._id}
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => {
-                      setSelectedPurchase(purchase);
+                      setSelectedPurchaseId(purchase._id);
                       setDetailOpen(true);
                     }}
                   >
@@ -181,6 +218,17 @@ const AdminPurchasesTab = () => {
               })}
             </TableBody>
           </Table>
+          {(status === 'CanLoadMore' || status === 'LoadingMore') && (
+            <div className="flex justify-center border-t px-4 py-3">
+              <Button
+                disabled={status === 'LoadingMore'}
+                variant="outline"
+                onClick={() => loadMore(LOAD_MORE_PAGE_SIZE)}
+              >
+                {status === 'LoadingMore' ? 'Laden…' : 'Weitere laden'}
+              </Button>
+            </div>
+          )}
         </Card>
       ) : (
         <Card className="shadow-md">
@@ -188,11 +236,7 @@ const AdminPurchasesTab = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
               <ShoppingCart className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground text-lg font-medium">
-              {purchases && purchases.length > 0
-                ? 'Keine Einkäufe entsprechen den Filtern'
-                : 'Keine Einkäufe gefunden'}
-            </p>
+            <p className="text-muted-foreground text-lg font-medium">Keine Einkäufe gefunden</p>
           </CardContent>
         </Card>
       )}
@@ -201,7 +245,7 @@ const AdminPurchasesTab = () => {
         open={detailOpen}
         onOpenChange={(open) => {
           setDetailOpen(open);
-          if (!open) setSelectedPurchase(null);
+          if (!open) setSelectedPurchaseId(null);
         }}
       >
         <DialogContent className="max-w-lg">
@@ -214,7 +258,7 @@ const AdminPurchasesTab = () => {
               </CardDescription>
             )}
           </DialogHeader>
-          {selectedPurchase && (
+          {selectedPurchase ? (
             <div className="space-y-4 py-2">
               <Table>
                 <TableHeader>
@@ -250,7 +294,7 @@ const AdminPurchasesTab = () => {
                 </Button>
               </div>
             </div>
-          )}
+          ) : null}
         </DialogContent>
       </Dialog>
 

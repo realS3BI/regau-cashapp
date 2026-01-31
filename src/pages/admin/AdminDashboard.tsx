@@ -24,7 +24,6 @@ const AdminDashboard = () => {
 
   const categories = useQuery(api.categories.listForAdmin);
   const products = useQuery(api.products.listForAdmin);
-  const purchases = useQuery(api.purchases.getAll);
   const teams = useQuery(api.teams.listForAdmin);
 
   useEffect(() => {
@@ -44,11 +43,7 @@ const AdminDashboard = () => {
     navigate('/admin/login');
   };
 
-  const isLoading =
-    categories === undefined ||
-    products === undefined ||
-    purchases === undefined ||
-    teams === undefined;
+  const isLoading = categories === undefined || products === undefined || teams === undefined;
 
   if (isLoading) {
     return <AdminDashboardSkeleton />;

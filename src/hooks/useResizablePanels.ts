@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 
-const CATEGORY_WIDTH_KEY = 'regau-cashapp-category-width';
-const CART_WIDTH_KEY = 'regau-cashapp-cart-width';
-const CATEGORY_DEFAULT = 280;
-const CART_DEFAULT = 360;
-const MIN_PANEL = 220;
-const MAX_PANEL = 500;
+const DEFAULT_MAX = 500;
+const DEFAULT_MIN = 220;
 
-const getStoredWidth = (key: string, defaultVal: number): number => {
+export type UseResizablePanelsOptions = {
+  defaultWidth: number;
+  maxWidth?: number;
+  minWidth?: number;
+  side: 'left' | 'right';
+  storageKey: string;
+};
+
+const getStoredWidth = (key: string, defaultVal: number, min: number, max: number): number => {
   try {
     const v = sessionStorage.getItem(key);
     if (v != null) {
       const n = parseInt(v, 10);
-      if (!Number.isNaN(n) && n >= MIN_PANEL && n <= MAX_PANEL) return n;
+      if (!Number.isNaN(n) && n >= min && n <= max) return n;
     }
   } catch {
     // ignore
@@ -20,52 +24,56 @@ const getStoredWidth = (key: string, defaultVal: number): number => {
   return defaultVal;
 };
 
-export const useResizablePanels = () => {
-  const [cartWidth, setCartWidth] = useState(() => getStoredWidth(CART_WIDTH_KEY, CART_DEFAULT));
-  const [categoryWidth, setCategoryWidth] = useState(() =>
-    getStoredWidth(CATEGORY_WIDTH_KEY, CATEGORY_DEFAULT)
+export const useResizablePanels = (options: UseResizablePanelsOptions) => {
+  const {
+    defaultWidth,
+    maxWidth = DEFAULT_MAX,
+    minWidth = DEFAULT_MIN,
+    side,
+    storageKey,
+  } = options;
+
+  const [width, setWidth] = useState(() =>
+    getStoredWidth(storageKey, defaultWidth, minWidth, maxWidth)
   );
-  const [resizing, setResizing] = useState<'cart' | 'category' | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (resizing === 'category') {
-        const w = Math.min(MAX_PANEL, Math.max(MIN_PANEL, e.clientX));
-        setCategoryWidth(w);
-      } else if (resizing === 'cart') {
-        const w = Math.min(MAX_PANEL, Math.max(MIN_PANEL, window.innerWidth - e.clientX));
-        setCartWidth(w);
-      }
+      if (!isResizing) return;
+      const raw = side === 'left' ? e.clientX : window.innerWidth - e.clientX;
+      const w = Math.min(maxWidth, Math.max(minWidth, raw));
+      setWidth(w);
     },
-    [resizing]
+    [isResizing, maxWidth, minWidth, side]
   );
 
   const handleMouseUp = useCallback(() => {
-    setResizing(null);
+    setIsResizing(false);
   }, []);
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
-      if (resizing == null) return;
+      if (!isResizing) return;
       e.preventDefault();
       const clientX = e.touches[0].clientX;
-      if (resizing === 'category') {
-        const w = Math.min(MAX_PANEL, Math.max(MIN_PANEL, clientX));
-        setCategoryWidth(w);
-      } else if (resizing === 'cart') {
-        const w = Math.min(MAX_PANEL, Math.max(MIN_PANEL, window.innerWidth - clientX));
-        setCartWidth(w);
-      }
+      const raw = side === 'left' ? clientX : window.innerWidth - clientX;
+      const w = Math.min(maxWidth, Math.max(minWidth, raw));
+      setWidth(w);
     },
-    [resizing]
+    [isResizing, maxWidth, minWidth, side]
   );
 
   const handleTouchEnd = useCallback(() => {
-    setResizing(null);
+    setIsResizing(false);
+  }, []);
+
+  const startResize = useCallback(() => {
+    setIsResizing(true);
   }, []);
 
   useEffect(() => {
-    if (resizing == null) return;
+    if (!isResizing) return;
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -78,19 +86,11 @@ export const useResizablePanels = () => {
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [resizing, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [isResizing, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   useEffect(() => {
-    sessionStorage.setItem(CATEGORY_WIDTH_KEY, String(categoryWidth));
-  }, [categoryWidth]);
+    sessionStorage.setItem(storageKey, String(width));
+  }, [storageKey, width]);
 
-  useEffect(() => {
-    sessionStorage.setItem(CART_WIDTH_KEY, String(cartWidth));
-  }, [cartWidth]);
-
-  return {
-    cartWidth,
-    categoryWidth,
-    setResizing,
-  };
+  return { startResize, width };
 };

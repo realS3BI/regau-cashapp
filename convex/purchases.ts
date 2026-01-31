@@ -1,4 +1,5 @@
 import { mutation, query } from './_generated/server';
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 
 export const create = mutation({
@@ -78,6 +79,106 @@ export const getPurchasesByTeamInRange = query({
 export const getAll = query({
   handler: async (ctx) => {
     return await ctx.db.query('purchases').order('desc').collect();
+  },
+});
+
+export const getToday = query({
+  handler: async (ctx) => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const endOfToday = startOfToday + 24 * 60 * 60 * 1000 - 1;
+    return await ctx.db
+      .query('purchases')
+      .withIndex('by_created')
+      .filter((q) => q.gte(q.field('createdAt'), startOfToday))
+      .filter((q) => q.lte(q.field('createdAt'), endOfToday))
+      .order('desc')
+      .collect();
+  },
+});
+
+export const getAllPaginated = query({
+  args: {
+    dateFrom: v.optional(v.number()),
+    dateTo: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+    teamId: v.optional(v.id('teams')),
+  },
+  handler: async (ctx, args) => {
+    const { dateFrom, dateTo, teamId } = args;
+
+    if (teamId !== undefined) {
+      const q = ctx.db
+        .query('purchases')
+        .withIndex('by_team_created', (q) => {
+          const withTeam = q.eq('teamId', teamId);
+          if (dateFrom !== undefined && dateTo !== undefined) {
+            return withTeam.gte('createdAt', dateFrom).lte('createdAt', dateTo);
+          }
+          if (dateFrom !== undefined) return withTeam.gte('createdAt', dateFrom);
+          if (dateTo !== undefined) return withTeam.lte('createdAt', dateTo);
+          return withTeam;
+        })
+        .order('desc');
+      return await q.paginate(args.paginationOpts);
+    }
+
+    const q = ctx.db
+      .query('purchases')
+      .withIndex('by_created', (q) => {
+        if (dateFrom !== undefined && dateTo !== undefined) {
+          return q.gte('createdAt', dateFrom).lte('createdAt', dateTo);
+        }
+        if (dateFrom !== undefined) return q.gte('createdAt', dateFrom);
+        if (dateTo !== undefined) return q.lte('createdAt', dateTo);
+        return q;
+      })
+      .order('desc');
+    return await q.paginate(args.paginationOpts);
+  },
+});
+
+/** Slim list view (no items array) for fast initial load. Use getById for full details. */
+export const getAllPaginatedList = query({
+  args: {
+    dateFrom: v.optional(v.number()),
+    dateTo: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+    teamId: v.optional(v.id('teams')),
+  },
+  handler: async (ctx, args) => {
+    const { dateFrom, dateTo, teamId } = args;
+
+    if (teamId !== undefined) {
+      const q = ctx.db
+        .query('purchases')
+        .withIndex('by_team_created', (q) => {
+          const withTeam = q.eq('teamId', teamId);
+          if (dateFrom !== undefined && dateTo !== undefined) {
+            return withTeam.gte('createdAt', dateFrom).lte('createdAt', dateTo);
+          }
+          if (dateFrom !== undefined) return withTeam.gte('createdAt', dateFrom);
+          if (dateTo !== undefined) return withTeam.lte('createdAt', dateTo);
+          return withTeam;
+        })
+        .order('desc');
+      const result = await q.paginate(args.paginationOpts);
+      return result;
+    }
+
+    const q = ctx.db
+      .query('purchases')
+      .withIndex('by_created', (q) => {
+        if (dateFrom !== undefined && dateTo !== undefined) {
+          return q.gte('createdAt', dateFrom).lte('createdAt', dateTo);
+        }
+        if (dateFrom !== undefined) return q.gte('createdAt', dateFrom);
+        if (dateTo !== undefined) return q.lte('createdAt', dateTo);
+        return q;
+      })
+      .order('desc');
+    const result = await q.paginate(args.paginationOpts);
+    return result;
   },
 });
 

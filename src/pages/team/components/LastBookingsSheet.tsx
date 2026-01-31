@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency, formatDateTime } from '@/lib/format';
-import { LayoutDashboard, Trash2 } from 'lucide-react';
+import { History, LayoutDashboard, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -83,7 +83,7 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
       <SheetContent className="flex flex-col sm:max-w-md" side="left">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <LayoutDashboard className="h-5 w-5" />
+            <History />
             Übersicht
           </SheetTitle>
         </SheetHeader>
@@ -117,7 +117,7 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
                 <div className="text-muted-foreground text-sm py-8 text-center">Wird geladen…</div>
               ) : recentPurchases.length === 0 ? (
                 <div className="text-muted-foreground text-sm py-8 text-center">
-                  Keine Buchungen
+                  Heute noch keine Buchungen
                 </div>
               ) : (
                 <ul className="space-y-3 pb-6 pr-4">

@@ -11,6 +11,23 @@ export const list = query({
   },
 });
 
+export const listNonEmpty = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query('categories').withIndex('by_order').collect();
+    const activeCategories = all
+      .filter((c) => c.deletedAt === undefined && c.active)
+      .sort((a, b) => a.order - b.order);
+
+    const products = await ctx.db.query('products').collect();
+    const categoryIdsWithProducts = new Set(
+      products.filter((p) => p.deletedAt === undefined && p.active).map((p) => p.categoryId)
+    );
+
+    return activeCategories.filter((c) => categoryIdsWithProducts.has(c._id));
+  },
+});
+
 export const listForAdmin = query({
   args: {},
   handler: async (ctx) => {

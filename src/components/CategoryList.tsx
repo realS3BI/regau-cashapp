@@ -12,7 +12,7 @@ interface CategoryListProps {
 }
 
 const CategoryList = ({ onSelectCategory, selectedCategoryId }: CategoryListProps) => {
-  const categories = useQuery(api.categories.list);
+  const categories = useQuery(api.categories.listNonEmpty);
 
   if (!categories) {
     return (

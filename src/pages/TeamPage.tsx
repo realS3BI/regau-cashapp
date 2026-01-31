@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
@@ -26,15 +26,46 @@ const TeamPage = () => {
   const { teamSlug } = useParams<{ teamSlug: string }>();
   const navigate = useNavigate();
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => getAdminAuth());
+  const [lastAddedProductId, setLastAddedProductId] = useState<Id<'products'> | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<Id<'categories'> | null>(null);
   const [showLastBookings, setShowLastBookings] = useState(false);
+  const addFeedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { cartWidth, categoryWidth, setResizing } = useResizablePanels();
+  useEffect(() => {
+    return () => {
+      if (addFeedbackTimeoutRef.current) clearTimeout(addFeedbackTimeoutRef.current);
+    };
+  }, []);
+
+  const categoryPanel = useResizablePanels({
+    defaultWidth: 280,
+    side: 'left',
+    storageKey: 'regau-cashapp-category-width',
+  });
+  const cartPanel = useResizablePanels({
+    defaultWidth: 360,
+    side: 'right',
+    storageKey: 'regau-cashapp-cart-width',
+    minWidth: 250,
+  });
 
   const team = useQuery(api.teams.getBySlug, teamSlug ? { slug: teamSlug } : 'skip');
   const checkout = useMutation(api.purchases.create);
 
   const { addItem, clearCart, getTotal, items, removeItem, updateQuantity } = useCart();
+
+  const handleAddToCart = useCallback(
+    (product: { _id: Id<'products'>; name: string; price: number }) => {
+      addItem(product);
+      if (addFeedbackTimeoutRef.current) clearTimeout(addFeedbackTimeoutRef.current);
+      setLastAddedProductId(product._id);
+      addFeedbackTimeoutRef.current = setTimeout(() => {
+        setLastAddedProductId(null);
+        addFeedbackTimeoutRef.current = null;
+      }, 500);
+    },
+    [addItem]
+  );
 
   if (!teamSlug) {
     navigate('/');
@@ -48,10 +79,6 @@ const TeamPage = () => {
   if (team === null) {
     return <TeamNotFound />;
   }
-
-  const handleAddToCart = (product: { _id: Id<'products'>; name: string; price: number }) => {
-    addItem(product);
-  };
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
@@ -97,7 +124,7 @@ const TeamPage = () => {
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 w-full">
         <aside
           className="hidden lg:flex border-r bg-muted/20 shrink-0 flex-col min-h-0"
-          style={{ width: categoryWidth }}
+          style={{ width: categoryPanel.width }}
         >
           <ScrollArea className="min-h-0 flex-1">
             <CategoryList
@@ -111,7 +138,7 @@ const TeamPage = () => {
               onClick={() => setShowLastBookings(true)}
               variant="outline"
             >
-              <History className="h-5 w-5 shrink-0" />
+              <History />
               Übersicht
             </Button>
           </div>
@@ -119,7 +146,7 @@ const TeamPage = () => {
 
         <ResizableDivider
           aria-label="Kategorien-Breite anpassen"
-          onResizeStart={() => setResizing('category')}
+          onResizeStart={categoryPanel.startResize}
         />
 
         <main className="flex-1 min-w-0 flex flex-col min-h-0">
@@ -135,23 +162,27 @@ const TeamPage = () => {
                   onClick={() => setShowLastBookings(true)}
                   variant="outline"
                 >
-                  <History className="h-5 w-5 shrink-0" />
+                  <History />
                   Übersicht
                 </Button>
               </div>
             </div>
-            <ProductGrid categoryId={selectedCategoryId} onAddToCart={handleAddToCart} />
+            <ProductGrid
+              categoryId={selectedCategoryId}
+              lastAddedProductId={lastAddedProductId}
+              onAddToCart={handleAddToCart}
+            />
           </ScrollArea>
         </main>
 
         <ResizableDivider
           aria-label="Warenkorb-Breite anpassen"
-          onResizeStart={() => setResizing('cart')}
+          onResizeStart={cartPanel.startResize}
         />
 
         <aside
           className="hidden lg:flex min-h-0 shrink-0 flex-col border-l bg-card shadow-lg"
-          style={{ width: cartWidth }}
+          style={{ width: cartPanel.width }}
         >
           <div className="flex min-h-0 flex-1 flex-col">
             <ShoppingCart

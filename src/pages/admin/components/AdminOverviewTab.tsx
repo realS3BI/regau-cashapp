@@ -4,26 +4,16 @@ import { api } from '../../../../convex/_generated/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/format';
-import { HelpCircle, Package, Receipt, ShoppingBag, TrendingUp } from 'lucide-react';
-
-const getStartOfTodayMs = () => {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-};
+import { HelpCircle, Package, Receipt, TrendingUp } from 'lucide-react';
 
 const AdminOverviewTab = () => {
-  const purchases = useQuery(api.purchases.getAll);
+  const purchasesToday = useQuery(api.purchases.getToday);
 
-  const startOfTodayMs = getStartOfTodayMs();
-
-  const purchasesToday = purchases?.filter((p) => p.createdAt >= startOfTodayMs) ?? [];
-  const todayRevenue = purchasesToday.reduce((sum, p) => sum + p.totalAmount, 0);
-  const todayItemsSold = purchasesToday.reduce(
-    (sum, p) => sum + p.items.reduce((s, i) => s + i.quantity, 0),
-    0
-  );
-  const totalRevenue = purchases?.reduce((sum, p) => sum + p.totalAmount, 0) ?? 0;
-  const avgPerSaleToday = purchasesToday.length > 0 ? todayRevenue / purchasesToday.length : 0;
+  const todayRevenue = purchasesToday?.reduce((sum, p) => sum + p.totalAmount, 0) ?? 0;
+  const todayItemsSold =
+    purchasesToday?.reduce((sum, p) => sum + p.items.reduce((s, i) => s + i.quantity, 0), 0) ?? 0;
+  const avgPerSaleToday =
+    purchasesToday && purchasesToday.length > 0 ? todayRevenue / purchasesToday.length : 0;
 
   return (
     <div className="space-y-6">
@@ -39,12 +29,12 @@ const AdminOverviewTab = () => {
             {formatCurrency(todayRevenue)}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {purchasesToday.length} verkäufe heute
+            {purchasesToday?.length ?? 0} verkäufe heute
           </p>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
@@ -53,7 +43,7 @@ const AdminOverviewTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="text-3xl font-bold tracking-tight">{purchasesToday.length}</p>
+            <p className="text-3xl font-bold tracking-tight">{purchasesToday?.length ?? 0}</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
@@ -65,19 +55,6 @@ const AdminOverviewTab = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <p className="text-3xl font-bold tracking-tight">{todayItemsSold}</p>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base font-semibold text-muted-foreground">
-              <ShoppingBag className="h-4 w-4" />
-              Gesamtumsatz
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-3xl font-bold tracking-tight text-primary">
-              {formatCurrency(totalRevenue)}
-            </p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">

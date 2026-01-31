@@ -7,10 +7,11 @@ import { formatCurrency } from '@/lib/format';
 
 interface ProductGridProps {
   categoryId: Id<'categories'> | null;
+  lastAddedProductId?: Id<'products'> | null;
   onAddToCart: (product: { _id: Id<'products'>; name: string; price: number }) => void;
 }
 
-const ProductGrid = ({ categoryId, onAddToCart }: ProductGridProps) => {
+const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGridProps) => {
   const allProducts = useQuery(api.products.listAllActive);
 
   const products = allProducts
@@ -60,7 +61,7 @@ const ProductGrid = ({ categoryId, onAddToCart }: ProductGridProps) => {
       {products.map((product) => (
         <Card
           key={product._id}
-          className="flex w-[200px] cursor-pointer flex-col border-2 border-transparent transition-all duration-200 hover:border-primary hover:shadow-lg group"
+          className={`flex w-[200px] cursor-pointer flex-col border-2 border-transparent transition-all duration-200 hover:border-primary hover:shadow-lg group ${lastAddedProductId === product._id ? 'animate-add-to-cart' : ''}`}
           onClick={() => onAddToCart(product)}
           role="button"
           tabIndex={0}

@@ -46,6 +46,7 @@ export default defineSchema({
     createdAt: v.number(),
     createdBy: v.optional(v.string()),
   })
+    .index('by_created', ['createdAt'])
     .index('by_team', ['teamId'])
     .index('by_team_created', ['teamId', 'createdAt']),
 });

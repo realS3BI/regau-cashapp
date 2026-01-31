@@ -11,7 +11,10 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 ARG CONVEX_DEPLOY_KEY
+ARG ADMIN_PASSWORD
 ENV CONVEX_DEPLOY_KEY=$CONVEX_DEPLOY_KEY
+RUN test -n "$ADMIN_PASSWORD" || (echo "Error: ADMIN_PASSWORD must be set for Convex deployment" && exit 1)
+RUN npx convex env set ADMIN_PASSWORD "$ADMIN_PASSWORD"
 RUN npx convex deploy
 
 ARG VITE_CONVEX_URL
@@ -26,6 +29,7 @@ RUN apk update && apk upgrade --no-cache
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 
+RUN pnpm add -g serve
 EXPOSE 3000
 
-CMD ["npx", "-y", "serve", "dist", "-s", "-l", "3000"]
+CMD ["serve", "dist", "-s", "-l", "3000"]

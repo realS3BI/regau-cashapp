@@ -21,7 +21,7 @@ RUN test -n "$ADMIN_PASSWORD" || (echo "Error: ADMIN_PASSWORD must be set for Co
 RUN test -n "$CONVEX_SELF_HOSTED_ADMIN_KEY" || (echo "Error: CONVEX_SELF_HOSTED_ADMIN_KEY must be set" && exit 1)
 RUN test -n "$CONVEX_SELF_HOSTED_URL" || (echo "Error: CONVEX_SELF_HOSTED_URL must be set" && exit 1)
 RUN npx convex env set ADMIN_PASSWORD "$ADMIN_PASSWORD"
-RUN npx convex deploy
+# RUN npx convex deploy
 RUN pnpm run build
 
 # Runtime – Coolify übernimmt Reverse-Proxy

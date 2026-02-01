@@ -15,9 +15,9 @@ interface CategorySelectorProps {
   categories: Array<{ _id: Id<'categories'>; deletedAt?: number; name: string }> | undefined;
   isCreatingCategory: boolean;
   newCategoryName: string;
-  selectedCategoryId: string;
+  selectedCategoryId: Id<'categories'> | null;
   showCreateCategory: boolean;
-  onCategoryChange: (categoryId: string) => void;
+  onCategoryChange: (categoryId: Id<'categories'>) => void;
   onCategoryNameChange: (name: string) => void;
   onCreateCategory: () => Promise<void>;
   onShowCreateCategoryChange: (show: boolean) => void;
@@ -49,8 +49,8 @@ export const CategorySelector = ({
       </Label>
       <Select
         disabled={isCreatingCategory}
-        value={selectedCategoryId}
-        onValueChange={onCategoryChange}
+        value={selectedCategoryId ?? ''}
+        onValueChange={(value) => onCategoryChange(value as Id<'categories'>)}
       >
         <SelectTrigger className="min-h-[48px] w-full">
           <SelectValue placeholder="Kategorie auswählen" />

@@ -63,46 +63,42 @@ const ShoppingCart = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-6 pr-4">
+            <div className="space-y-3 pr-4">
               {groupedItems.map((item) => (
-                <div key={item.productId} className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 space-y-1">
-                      <p className="text-base font-semibold leading-tight">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatCurrency(item.price)} × {item.quantity}
-                      </p>
-                      <p className="text-base font-bold text-primary">
-                        {formatCurrency(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
+                <div key={item.productId} className="space-y-2">
+                  <p className="text-sm font-semibold leading-tight">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatCurrency(item.price)} × {item.quantity} ={' '}
+                    <span className="font-semibold text-foreground">
+                      {formatCurrency(item.price * item.quantity)}
+                    </span>
+                  </p>
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-12 w-12 min-h-[44px] min-w-[44px] text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      className="h-9 w-9 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       onClick={() =>
                         item.quantity <= 1
                           ? onRemoveItem(item.productId)
                           : onUpdateQuantity(item.productId, item.quantity - 1)
                       }
                     >
-                      <Minus className="h-5 w-5" />
+                      <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="min-w-[44px] flex-1 text-center text-lg font-bold">
+                    <span className="min-w-[2rem] flex-1 text-center text-sm font-bold">
                       {item.quantity}
                     </span>
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-12 w-12 min-h-[44px] min-w-[44px]"
+                      className="h-9 w-9 shrink-0"
                       onClick={() => onUpdateQuantity(item.productId, item.quantity + 1)}
                     >
-                      <Plus className="h-5 w-5" />
+                      <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Separator className="my-2" />
+                  <Separator className="my-1" />
                 </div>
               ))}
             </div>

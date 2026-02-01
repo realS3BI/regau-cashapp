@@ -4,11 +4,14 @@ import { Id } from '../../convex/_generated/dataModel';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
+import { Heart } from 'lucide-react';
 import { Separator } from './ui/separator';
 
+export type CategorySelection = Id<'categories'> | null | 'favorites';
+
 interface CategoryListProps {
-  onSelectCategory: (categoryId: Id<'categories'> | null) => void;
-  selectedCategoryId: Id<'categories'> | null;
+  onSelectCategory: (categoryId: CategorySelection) => void;
+  selectedCategoryId: CategorySelection;
 }
 
 const CategoryList = ({ onSelectCategory, selectedCategoryId }: CategoryListProps) => {
@@ -37,6 +40,17 @@ const CategoryList = ({ onSelectCategory, selectedCategoryId }: CategoryListProp
           onClick={() => onSelectCategory(null)}
         >
           <span className="truncate">Alle Produkte</span>
+        </Button>
+        <Button
+          variant={selectedCategoryId === 'favorites' ? 'default' : 'outline'}
+          className={cn(
+            'w-full min-h-[48px] min-w-0 justify-start gap-2 truncate text-base font-medium transition-all',
+            selectedCategoryId === 'favorites' && 'bg-primary text-primary-foreground shadow-sm'
+          )}
+          onClick={() => onSelectCategory('favorites')}
+        >
+          <Heart className="h-4 w-4 shrink-0" />
+          <span className="truncate">Favoriten</span>
         </Button>
         <Separator />
         {categories.map((category) => (

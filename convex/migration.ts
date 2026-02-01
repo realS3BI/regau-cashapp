@@ -4,6 +4,24 @@ import { v } from 'convex/values';
 // Migration Mutations für Supabase Import
 // Diese Mutations erlauben das Setzen von createdAt für die Migration
 
+/** Entfernt das Feld `price` aus allen Produktdokumenten. Einmal ausführen, danach kann `price` im Schema gelöscht werden. */
+export const removeProductPriceField = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const products = await ctx.db.query('products').collect();
+    let count = 0;
+    for (const product of products) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const doc = product as any;
+      if (doc.price === undefined) continue;
+      const { _id, price: _drop, ...rest } = doc;
+      await ctx.db.replace(_id, rest);
+      count++;
+    }
+    return { updated: count };
+  },
+});
+
 export const createCategoryWithDate = mutation({
   args: {
     active: v.optional(v.boolean()),
@@ -56,7 +74,8 @@ export const createProductWithDate = mutation({
     description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     name: v.string(),
-    price: v.number(),
+    priceA: v.number(),
+    priceB: v.number(),
     updatedAt: v.number(),
   },
   handler: async (ctx, args) => {
@@ -68,7 +87,8 @@ export const createProductWithDate = mutation({
       description: args.description,
       imageUrl: args.imageUrl,
       name: args.name,
-      price: args.price,
+      priceA: args.priceA,
+      priceB: args.priceB,
       updatedAt: args.updatedAt,
     });
   },

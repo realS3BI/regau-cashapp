@@ -1,5 +1,22 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +31,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -24,28 +42,126 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Plus, Trash2 } from 'lucide-react';
+import { GripVertical, Plus, Trash2 } from 'lucide-react';
+
+type CategoryItem = {
+  _id: Id<'categories'>;
+  active?: boolean;
+  deletedAt?: number;
+  name: string;
+  order: number;
+  productCount?: number;
+};
+
+const categoryList = (categories: CategoryItem[] | undefined) =>
+  categories?.filter((c) => !c.deletedAt) ?? [];
+
+type SortableRowProps = {
+  category: CategoryItem;
+  isSelected: boolean;
+  onEdit: () => void;
+  onToggleSelect: (e: React.MouseEvent) => void;
+};
+
+const SortableRow = ({ category, isSelected, onEdit, onToggleSelect }: SortableRowProps) => {
+  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
+    id: category._id,
+  });
+
+  const style = {
+    opacity: isDragging ? 0.5 : 1,
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      className="cursor-pointer hover:bg-muted/50"
+      style={style}
+      onClick={onEdit}
+    >
+      <TableCell
+        className="w-10 py-4"
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+      </TableCell>
+      <TableCell className="w-12 py-4" onClick={onToggleSelect}>
+        <Checkbox checked={isSelected} className="h-5 w-5 pointer-events-none" />
+      </TableCell>
+      <TableCell className="font-semibold py-4">{category.name}</TableCell>
+      <TableCell className="py-4 font-semibold">{category.productCount ?? 0}</TableCell>
+      <TableCell className="py-4">
+        <Badge className="font-semibold" variant={category.active ? 'default' : 'secondary'}>
+          {category.active ? 'Aktiv' : 'Inaktiv'}
+        </Badge>
+      </TableCell>
+    </TableRow>
+  );
+};
 
 const AdminCategoriesTab = () => {
-  const categories = useQuery(api.categories.listForAdmin);
+  const categories = useQuery(api.categories.listForAdminWithProductCount);
   const createCategory = useMutation(api.categories.create);
-  const updateCategory = useMutation(api.categories.update);
   const deleteCategory = useMutation(api.categories.remove);
+  const reorderCategories = useMutation(api.categories.reorder);
+  const updateCategory = useMutation(api.categories.update);
+  const updateManyCategoryActive = useMutation(api.categories.updateManyActive);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<Id<'categories'>>>(new Set());
   const [editingCategory, setEditingCategory] = useState<Id<'categories'> | null>(null);
-  const [form, setForm] = useState({ active: true, name: '', order: 0 });
+  const [form, setForm] = useState({ active: true, name: '' });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const visibleCategories = categoryList(categories);
+  const isLoading = categories === undefined;
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = visibleCategories.findIndex((c) => c._id === active.id);
+      const newIndex = visibleCategories.findIndex((c) => c._id === over.id);
+
+      const reordered = arrayMove(visibleCategories, oldIndex, newIndex);
+      const orderedIds = reordered.map((c) => c._id);
+
+      try {
+        await reorderCategories({ orderedIds });
+        toast.success('Erfolgreich', {
+          description: 'Reihenfolge aktualisiert',
+        });
+      } catch (error) {
+        toast.error('Fehler', {
+          description: error instanceof Error ? error.message : 'Fehler beim Neuordnen',
+        });
+      }
+    }
+  };
 
   const handleCreateCategory = async () => {
     try {
-      const maxOrder = categories ? Math.max(...categories.map((c) => c.order), -1) + 1 : 0;
+      const maxOrder =
+        visibleCategories.length > 0
+          ? Math.max(...visibleCategories.map((c) => c.order), -1) + 1
+          : 0;
       await createCategory({
         active: form.active,
         name: form.name,
-        order: form.order ?? maxOrder,
+        order: maxOrder,
       });
       setDialogOpen(false);
-      setForm({ active: true, name: '', order: 0 });
+      setForm({ active: true, name: '' });
       toast.success('Erfolgreich', {
         description: 'Kategorie erstellt',
       });
@@ -64,11 +180,10 @@ const AdminCategoriesTab = () => {
         active: form.active,
         id: editingCategory,
         name: form.name || undefined,
-        order: form.order !== undefined ? form.order : undefined,
       });
       setDialogOpen(false);
       setEditingCategory(null);
-      setForm({ active: true, name: '', order: 0 });
+      setForm({ active: true, name: '' });
       toast.success('Erfolgreich', {
         description: 'Kategorie aktualisiert',
       });
@@ -95,25 +210,56 @@ const AdminCategoriesTab = () => {
     }
   };
 
-  const openEdit = (category: {
-    _id: Id<'categories'>;
-    active?: boolean;
-    name: string;
-    order: number;
-  }) => {
+  const openEdit = (category: { _id: Id<'categories'>; active?: boolean; name: string }) => {
     setEditingCategory(category._id);
     setForm({
       active: category.active ?? true,
       name: category.name,
-      order: category.order,
     });
     setDialogOpen(true);
   };
 
   const openCreate = () => {
     setEditingCategory(null);
-    setForm({ active: true, name: '', order: 0 });
+    setForm({ active: true, name: '' });
     setDialogOpen(true);
+  };
+
+  const allSelected =
+    visibleCategories.length > 0 && visibleCategories.every((c) => selectedCategoryIds.has(c._id));
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedCategoryIds(new Set());
+    } else {
+      setSelectedCategoryIds(new Set(visibleCategories.map((c) => c._id)));
+    }
+  };
+
+  const toggleSelectCategory = (id: Id<'categories'>, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedCategoryIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkSetActive = async (active: boolean) => {
+    const ids = Array.from(selectedCategoryIds);
+    if (ids.length === 0) return;
+    try {
+      await updateManyCategoryActive({ active, ids });
+      setSelectedCategoryIds(new Set());
+      toast.success('Erfolgreich', {
+        description: `${ids.length} Kategorie(n) ${active ? 'aktiviert' : 'deaktiviert'}`,
+      });
+    } catch (error) {
+      toast.error('Fehler', {
+        description: error instanceof Error ? error.message : 'Fehler beim Aktualisieren',
+      });
+    }
   };
 
   return (
@@ -126,39 +272,111 @@ const AdminCategoriesTab = () => {
         </Button>
       </div>
 
-      {categories && categories.length > 0 ? (
+      {isLoading ? (
         <Card className="shadow-md">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
+                <TableHead className="h-14 w-10" />
+                <TableHead className="h-14 w-12" />
                 <TableHead className="h-14 font-bold">Name</TableHead>
-                <TableHead className="h-14 font-bold">Reihenfolge</TableHead>
+                <TableHead className="h-14 font-bold">Produkte</TableHead>
                 <TableHead className="h-14 font-bold">Aktiv</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories
-                ?.filter((c) => !c.deletedAt)
-                .map((category) => (
-                  <TableRow
-                    key={category._id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => openEdit(category)}
-                  >
-                    <TableCell className="font-semibold py-4">{category.name}</TableCell>
-                    <TableCell className="py-4 font-semibold">{category.order}</TableCell>
-                    <TableCell className="py-4">
-                      <Badge
-                        className="font-semibold"
-                        variant={category.active ? 'default' : 'secondary'}
-                      >
-                        {category.active ? 'Aktiv' : 'Inaktiv'}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {Array.from({ length: 6 }).map((_, i) => (
+                <TableRow key={i} className="hover:bg-transparent">
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-5" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-5" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-32" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-12" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
+        </Card>
+      ) : visibleCategories.length > 0 ? (
+        <Card className="shadow-md">
+          {selectedCategoryIds.size > 0 && (
+            <div className="flex items-center gap-4 px-4 py-3 border-b bg-muted/40">
+              <span className="text-sm font-medium">{selectedCategoryIds.size} ausgewählt</span>
+              <Button
+                className="min-h-[36px]"
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkSetActive(true)}
+              >
+                Aktivieren
+              </Button>
+              <Button
+                className="min-h-[36px]"
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkSetActive(false)}
+              >
+                Deaktivieren
+              </Button>
+              <Button
+                className="min-h-[36px]"
+                size="sm"
+                variant="ghost"
+                onClick={() => setSelectedCategoryIds(new Set())}
+              >
+                Auswahl aufheben
+              </Button>
+            </div>
+          )}
+          <DndContext
+            collisionDetection={closestCenter}
+            sensors={sensors}
+            onDragEnd={handleDragEnd}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-14 w-10" />
+                  <TableHead className="h-14 w-12">
+                    <Checkbox
+                      checked={allSelected}
+                      className="h-5 w-5"
+                      onCheckedChange={toggleSelectAll}
+                    />
+                  </TableHead>
+                  <TableHead className="h-14 font-bold">Name</TableHead>
+                  <TableHead className="h-14 font-bold">Produkte</TableHead>
+                  <TableHead className="h-14 font-bold">Aktiv</TableHead>
+                </TableRow>
+              </TableHeader>
+              <SortableContext
+                items={visibleCategories.map((c) => c._id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <TableBody>
+                  {visibleCategories.map((category) => (
+                    <SortableRow
+                      key={category._id}
+                      category={category}
+                      isSelected={selectedCategoryIds.has(category._id)}
+                      onEdit={() => openEdit(category)}
+                      onToggleSelect={(e) => toggleSelectCategory(category._id, e)}
+                    />
+                  ))}
+                </TableBody>
+              </SortableContext>
+            </Table>
+          </DndContext>
         </Card>
       ) : (
         <Card className="shadow-md">
@@ -190,18 +408,6 @@ const AdminCategoriesTab = () => {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </div>
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold" htmlFor="category-order">
-                Reihenfolge
-              </Label>
-              <Input
-                id="category-order"
-                className="min-h-[48px]"
-                type="number"
-                value={form.order}
-                onChange={(e) => setForm({ ...form, order: parseInt(e.target.value) || 0 })}
-              />
-            </div>
             <div className="flex items-center space-x-3 pt-2">
               <Checkbox
                 id="category-active"
@@ -225,7 +431,7 @@ const AdminCategoriesTab = () => {
                   handleDeleteCategory(editingCategory, () => {
                     setDialogOpen(false);
                     setEditingCategory(null);
-                    setForm({ active: true, name: '', order: 0 });
+                    setForm({ active: true, name: '' });
                   })
                 }
               >

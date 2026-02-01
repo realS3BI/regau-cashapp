@@ -12,23 +12,28 @@ const TeamPageHeader = ({ isAdminLoggedIn, onLogout, teamName }: TeamPageHeaderP
   const navigate = useNavigate();
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 shadow-sm w-full">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
-        <Button
-          className="min-h-[44px] min-w-[44px]"
-          onClick={() => navigate('/')}
-          size="icon"
-          variant="ghost"
-        >
-          <ArrowLeft className="h-6 w-6" />
-        </Button>
-        <h1 className="text-2xl font-bold tracking-tight flex-1">{teamName}</h1>
-        {isAdminLoggedIn && (
-          <Button className="min-h-[44px] gap-2" onClick={onLogout} size="sm" variant="outline">
-            <LogOut className="h-5 w-5" />
-            <span className="hidden sm:inline">Abmelden</span>
+    <header className="sticky top-0 z-10 shrink-0 border-b bg-background/95 shadow-sm w-full backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="grid w-full grid-cols-3 items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex justify-start">
+          <Button
+            className="min-h-[44px] gap-2"
+            onClick={() => navigate('/')}
+            size="sm"
+            variant="outline"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span className="hidden sm:inline">Zurück</span>
           </Button>
-        )}
+        </div>
+        <h1 className="text-center text-2xl font-bold tracking-tight">{teamName}</h1>
+        <div className="flex justify-end">
+          {isAdminLoggedIn && (
+            <Button className="min-h-[44px] gap-2" onClick={onLogout} size="sm" variant="outline">
+              <LogOut className="h-5 w-5" />
+              <span className="hidden sm:inline">Abmelden</span>
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -14,6 +14,7 @@ import {
   AdminProductsTab,
   AdminPurchasesTab,
   AdminTeamsTab,
+  AdminTemplateTab,
 } from './components';
 
 const AdminDashboard = () => {
@@ -22,9 +23,14 @@ const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => getAdminAuth());
   const [tabsOpen, setTabsOpen] = useState(false);
 
+  const activeTemplate = useQuery(api.settings.getActiveTemplate);
   const categories = useQuery(api.categories.listForAdmin);
   const products = useQuery(api.products.listForAdmin);
   const teams = useQuery(api.teams.listForAdmin);
+
+  const templatesTabLabel = activeTemplate
+    ? `Preisvorlagen (${activeTemplate})`
+    : 'Preisvorlagen';
 
   useEffect(() => {
     if (!getAdminAuth()) {
@@ -73,12 +79,13 @@ const AdminDashboard = () => {
                 {activeTab === 'teams' && 'Teams'}
                 {activeTab === 'products' && 'Produktverwaltung'}
                 {activeTab === 'categories' && 'Kategorieverwaltung'}
+                {activeTab === 'templates' && templatesTabLabel}
                 {activeTab === 'purchases' && 'Kaufhistorie'}
               </span>
               {tabsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
             </Button>
             <div className={tabsOpen ? 'block' : 'hidden md:block'}>
-              <TabsList className="grid w-full grid-cols-1 h-auto gap-1 p-2 md:grid-cols-5 mt-2 md:mt-0">
+              <TabsList className="grid w-full grid-cols-1 h-auto gap-1 p-2 md:grid-cols-6 mt-2 md:mt-0">
                 <TabsTrigger className="min-h-[44px] text-sm font-semibold" value="overview">
                   Übersicht
                 </TabsTrigger>
@@ -90,6 +97,9 @@ const AdminDashboard = () => {
                 </TabsTrigger>
                 <TabsTrigger className="min-h-[44px] text-sm font-semibold" value="categories">
                   Kategorieverwaltung
+                </TabsTrigger>
+                <TabsTrigger className="min-h-[44px] text-sm font-semibold" value="templates">
+                  {templatesTabLabel}
                 </TabsTrigger>
                 <TabsTrigger className="min-h-[44px] text-sm font-semibold" value="purchases">
                   Kaufhistorie
@@ -112,6 +122,10 @@ const AdminDashboard = () => {
 
           <TabsContent className="space-y-6" value="categories">
             <AdminCategoriesTab />
+          </TabsContent>
+
+          <TabsContent className="space-y-6" value="templates">
+            <AdminTemplateTab />
           </TabsContent>
 
           <TabsContent className="space-y-6" value="purchases">

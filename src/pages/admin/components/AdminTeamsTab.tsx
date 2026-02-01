@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -145,6 +146,8 @@ const AdminTeamsTab = () => {
     setDialogOpen(true);
   };
 
+  const isLoading = teams === undefined;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -155,7 +158,7 @@ const AdminTeamsTab = () => {
         </Button>
       </div>
 
-      {teams && teams.length > 0 ? (
+      {isLoading ? (
         <Card className="shadow-md">
           <Table>
             <TableHeader>
@@ -167,7 +170,40 @@ const AdminTeamsTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teams.map((team) => (
+              {Array.from({ length: 6 }).map((_, i) => (
+                <TableRow key={i} className="hover:bg-transparent">
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-32" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-5 w-24 font-mono" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      ) : teams && teams.length > 0 ? (
+        <Card className="shadow-md">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="h-14 font-bold">Name</TableHead>
+                <TableHead className="h-14 font-bold">Slug</TableHead>
+                <TableHead className="h-14 font-bold">Sichtbar</TableHead>
+                <TableHead className="h-14 font-bold">Gelöscht</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...teams]
+                .sort((a, b) => a.name.localeCompare(b.name, 'de'))
+                .map((team) => (
                 <TableRow
                   key={team._id}
                   className={`cursor-pointer hover:bg-muted/50 ${team.deletedAt != null ? 'opacity-60' : ''}`}

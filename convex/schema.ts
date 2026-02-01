@@ -2,14 +2,6 @@ import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 
 export default defineSchema({
-  teams: defineTable({
-    active: v.optional(v.boolean()),
-    createdAt: v.number(),
-    deletedAt: v.optional(v.number()),
-    name: v.string(),
-    slug: v.string(),
-  }).index('by_slug', ['slug']),
-
   categories: defineTable({
     active: v.boolean(),
     createdAt: v.number(),
@@ -25,28 +17,43 @@ export default defineSchema({
     deletedAt: v.optional(v.number()),
     description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
+    isFavorite: v.optional(v.boolean()),
     name: v.string(),
-    price: v.number(),
+    priceA: v.optional(v.number()),
+    priceB: v.optional(v.number()),
     updatedAt: v.number(),
   })
     .index('by_category', ['categoryId'])
     .index('by_category_active', ['categoryId', 'active']),
 
   purchases: defineTable({
-    teamId: v.id('teams'),
+    createdAt: v.number(),
+    createdBy: v.optional(v.string()),
     items: v.array(
       v.object({
-        productId: v.id('products'),
         name: v.string(),
         price: v.number(),
+        productId: v.id('products'),
         quantity: v.number(),
       })
     ),
+    teamId: v.id('teams'),
     totalAmount: v.number(),
-    createdAt: v.number(),
-    createdBy: v.optional(v.string()),
   })
     .index('by_created', ['createdAt'])
     .index('by_team', ['teamId'])
     .index('by_team_created', ['teamId', 'createdAt']),
+
+  settings: defineTable({
+    key: v.string(),
+    value: v.string(),
+  }).index('by_key', ['key']),
+
+  teams: defineTable({
+    active: v.optional(v.boolean()),
+    createdAt: v.number(),
+    deletedAt: v.optional(v.number()),
+    name: v.string(),
+    slug: v.string(),
+  }).index('by_slug', ['slug']),
 });

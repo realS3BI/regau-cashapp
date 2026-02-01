@@ -4,9 +4,10 @@ import { Id } from '../../convex/_generated/dataModel';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { formatCurrency } from '@/lib/format';
+import type { CategorySelection } from './CategoryList';
 
 interface ProductGridProps {
-  categoryId: Id<'categories'> | null;
+  categoryId: CategorySelection;
   lastAddedProductId?: Id<'products'> | null;
   onAddToCart: (product: { _id: Id<'products'>; name: string; price: number }) => void;
 }
@@ -15,9 +16,15 @@ const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGri
   const allProducts = useQuery(api.products.listAllActive);
 
   const products = allProducts
-    ? categoryId
-      ? allProducts.filter((p) => p.categoryId === categoryId)
-      : allProducts
+    ? (() => {
+        const list =
+          categoryId === 'favorites'
+            ? allProducts.filter((p) => p.isFavorite === true)
+            : categoryId
+              ? allProducts.filter((p) => p.categoryId === categoryId)
+              : allProducts;
+        return [...list].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+      })()
     : undefined;
 
   if (!products) {
@@ -46,7 +53,9 @@ const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGri
         <div className="text-center space-y-3">
           <p className="text-muted-foreground text-lg font-medium">Keine Produkte gefunden</p>
           <p className="text-sm text-muted-foreground">
-            Es sind derzeit keine Produkte in dieser Kategorie verfügbar.
+            {categoryId === 'favorites'
+              ? 'In der Admin-Übersicht können Produkte als Favoriten markiert werden.'
+              : 'Es sind derzeit keine Produkte in dieser Kategorie verfügbar.'}
           </p>
         </div>
       </div>
@@ -72,7 +81,7 @@ const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGri
             }
           }}
         >
-          <CardHeader className="space-y-1 p-4 pb-2">
+          <CardHeader className="space-y-1">
             <CardTitle className="text-base font-semibold leading-tight transition-colors group-hover:text-primary">
               {product.name}
             </CardTitle>

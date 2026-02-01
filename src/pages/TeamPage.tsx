@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
-import CategoryList from '@/components/CategoryList';
+import CategoryList, { type CategorySelection } from '@/components/CategoryList';
 import ProductGrid from '@/components/ProductGrid';
 import ShoppingCart from '@/components/ShoppingCart';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ const TeamPage = () => {
   const navigate = useNavigate();
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => getAdminAuth());
   const [lastAddedProductId, setLastAddedProductId] = useState<Id<'products'> | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<Id<'categories'> | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<CategorySelection>(null);
   const [showLastBookings, setShowLastBookings] = useState(false);
   const addFeedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -114,25 +114,25 @@ const TeamPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background w-full">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background w-full">
       <TeamPageHeader
         isAdminLoggedIn={isAdminLoggedIn}
         onLogout={handleLogout}
         teamName={team.name}
       />
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0 w-full">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row w-full">
         <aside
-          className="hidden lg:flex border-r bg-muted/20 shrink-0 flex-col min-h-0"
+          className="hidden shrink-0 flex-col border-r bg-muted/20 lg:flex"
           style={{ width: categoryPanel.width }}
         >
-          <ScrollArea className="min-h-0 flex-1">
+          <ScrollArea className="flex-1">
             <CategoryList
               onSelectCategory={setSelectedCategoryId}
               selectedCategoryId={selectedCategoryId}
             />
           </ScrollArea>
-          <div className="border-t p-4 shrink-0">
+          <div className="shrink-0 border-t p-4">
             <Button
               className="w-full justify-start min-h-[48px] text-base font-medium gap-2"
               onClick={() => setShowLastBookings(true)}
@@ -149,24 +149,24 @@ const TeamPage = () => {
           onResizeStart={categoryPanel.startResize}
         />
 
-        <main className="flex-1 min-w-0 flex flex-col min-h-0">
-          <ScrollArea className="min-h-0 flex-1">
-            <div className="lg:hidden border-b bg-muted/20 pb-4">
-              <CategoryList
-                onSelectCategory={setSelectedCategoryId}
-                selectedCategoryId={selectedCategoryId}
-              />
-              <div className="px-4 pt-2">
-                <Button
-                  className="w-full justify-start min-h-[48px] text-base font-medium gap-2"
-                  onClick={() => setShowLastBookings(true)}
-                  variant="outline"
-                >
-                  <History />
-                  Übersicht
-                </Button>
-              </div>
+        <main className="flex min-h-0 flex-1 flex-col min-w-0 overflow-hidden">
+          <div className="shrink-0 border-b bg-muted/20 pb-4 lg:hidden">
+            <CategoryList
+              onSelectCategory={setSelectedCategoryId}
+              selectedCategoryId={selectedCategoryId}
+            />
+            <div className="px-4 pt-2">
+              <Button
+                className="w-full justify-start min-h-[48px] text-base font-medium gap-2"
+                onClick={() => setShowLastBookings(true)}
+                variant="outline"
+              >
+                <History />
+                Übersicht
+              </Button>
             </div>
+          </div>
+          <ScrollArea className="min-h-0 flex-1">
             <ProductGrid
               categoryId={selectedCategoryId}
               lastAddedProductId={lastAddedProductId}
@@ -181,10 +181,10 @@ const TeamPage = () => {
         />
 
         <aside
-          className="hidden lg:flex min-h-0 shrink-0 flex-col border-l bg-card shadow-lg"
+          className="hidden shrink-0 flex-col border-l bg-card shadow-lg lg:flex"
           style={{ width: cartPanel.width }}
         >
-          <div className="flex min-h-0 flex-1 flex-col">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <ShoppingCart
               items={items}
               onCheckout={handleCheckout}

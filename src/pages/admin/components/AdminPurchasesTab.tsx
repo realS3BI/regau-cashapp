@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation, usePaginatedQuery, useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -36,7 +36,62 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { formatCurrency, formatDate, formatDateTime, formatTime } from '@/lib/format';
-import { ShoppingCart, Trash2 } from 'lucide-react';
+import { Calendar, ShoppingCart, Trash2, X } from 'lucide-react';
+
+type DatePreset = 'today' | 'yesterday' | 'thisWeek' | 'lastWeek' | 'thisMonth' | 'lastMonth' | 'custom';
+
+const getDatePresetRange = (preset: DatePreset): { from: string; to: string } => {
+  const today = new Date();
+  const formatDateStr = (date: Date) => date.toISOString().split('T')[0];
+  
+  const getMonday = (date: Date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  };
+
+  switch (preset) {
+    case 'today':
+      return { from: formatDateStr(today), to: formatDateStr(today) };
+    case 'yesterday': {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return { from: formatDateStr(yesterday), to: formatDateStr(yesterday) };
+    }
+    case 'thisWeek': {
+      const monday = getMonday(today);
+      return { from: formatDateStr(monday), to: formatDateStr(today) };
+    }
+    case 'lastWeek': {
+      const lastMonday = getMonday(today);
+      lastMonday.setDate(lastMonday.getDate() - 7);
+      const lastSunday = new Date(lastMonday);
+      lastSunday.setDate(lastSunday.getDate() + 6);
+      return { from: formatDateStr(lastMonday), to: formatDateStr(lastSunday) };
+    }
+    case 'thisMonth': {
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      return { from: formatDateStr(firstDay), to: formatDateStr(today) };
+    }
+    case 'lastMonth': {
+      const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      return { from: formatDateStr(firstDayLastMonth), to: formatDateStr(lastDayLastMonth) };
+    }
+    default:
+      return { from: '', to: '' };
+  }
+};
+
+const DATE_PRESETS: { label: string; value: DatePreset }[] = [
+  { label: 'Heute', value: 'today' },
+  { label: 'Gestern', value: 'yesterday' },
+  { label: 'Diese Woche', value: 'thisWeek' },
+  { label: 'Letzte Woche', value: 'lastWeek' },
+  { label: 'Dieser Monat', value: 'thisMonth' },
+  { label: 'Letzter Monat', value: 'lastMonth' },
+];
 
 const INITIAL_PAGE_SIZE = 30;
 const LOAD_MORE_PAGE_SIZE = 50;
@@ -47,14 +102,70 @@ const AdminPurchasesTab = () => {
   const teams = useQuery(api.teams.listForAdmin);
   const removePurchase = useMutation(api.purchases.remove);
 
-  const [detailOpen, setDetailOpen] = useState(false);
+  const [activePreset, setActivePreset] = useState<DatePreset | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
   const [filterTeamId, setFilterTeamId] = useState('');
   const [selectedPurchaseId, setSelectedPurchaseId] = useState<Id<'purchases'> | null>(null);
 
+  // Get today's date for max validation
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+  // Validate date range
+  const dateValidation = useMemo(() => {
+    if (!filterDateFrom && !filterDateTo) return { isValid: true, error: null };
+    
+    const fromDate = filterDateFrom ? new Date(filterDateFrom) : null;
+    const toDate = filterDateTo ? new Date(filterDateTo) : null;
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (fromDate && fromDate > today) {
+      return { error: 'Von-Datum kann nicht in der Zukunft liegen', isValid: false };
+    }
+    if (toDate && toDate > today) {
+      return { error: 'Bis-Datum kann nicht in der Zukunft liegen', isValid: false };
+    }
+    if (fromDate && toDate && fromDate > toDate) {
+      return { error: 'Von-Datum muss vor dem Bis-Datum liegen', isValid: false };
+    }
+    return { error: null, isValid: true };
+  }, [filterDateFrom, filterDateTo]);
+
+  const handlePresetClick = useCallback((preset: DatePreset) => {
+    const { from, to } = getDatePresetRange(preset);
+    setActivePreset(preset);
+    setFilterDateFrom(from);
+    setFilterDateTo(to);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setActivePreset(null);
+    setFilterDateFrom('');
+    setFilterDateTo('');
+  }, []);
+
+  const handleDateFromChange = useCallback((value: string) => {
+    setActivePreset(null);
+    setFilterDateFrom(value);
+  }, []);
+
+  const handleDateToChange = useCallback((value: string) => {
+    setActivePreset(null);
+    setFilterDateTo(value);
+  }, []);
+
   const filterOpts = useMemo(() => {
+    // Don't apply invalid date filters
+    if (!dateValidation.isValid) {
+      return {
+        dateFrom: undefined,
+        dateTo: undefined,
+        teamId: filterTeamId ? (filterTeamId as Id<'teams'>) : undefined,
+      };
+    }
     const from = filterDateFrom ? new Date(filterDateFrom).setHours(0, 0, 0, 0) : undefined;
     const to = filterDateTo ? new Date(filterDateTo).setHours(23, 59, 59, 999) : undefined;
     return {
@@ -62,7 +173,7 @@ const AdminPurchasesTab = () => {
       dateTo: to,
       teamId: filterTeamId ? (filterTeamId as Id<'teams'>) : undefined,
     };
-  }, [filterDateFrom, filterDateTo, filterTeamId]);
+  }, [dateValidation.isValid, filterDateFrom, filterDateTo, filterTeamId]);
 
   const { loadMore, results, status } = usePaginatedQuery(
     api.purchases.getAllPaginatedList,
@@ -95,25 +206,67 @@ const AdminPurchasesTab = () => {
 
   const isLoading = status === 'LoadingFirstPage';
 
+  const hasDateFilter = filterDateFrom || filterDateTo;
+
   return (
     <div className="space-y-6">
+      {/* Quick filter presets */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Label className="text-sm font-semibold">Schnellauswahl</Label>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {DATE_PRESETS.map((preset) => (
+            <Button
+              className="h-9"
+              key={preset.value}
+              size="sm"
+              variant={activePreset === preset.value ? 'default' : 'outline'}
+              onClick={() => handlePresetClick(preset.value)}
+            >
+              {preset.label}
+            </Button>
+          ))}
+          {hasDateFilter && (
+            <Button
+              className="h-9 text-muted-foreground"
+              size="sm"
+              variant="ghost"
+              onClick={handleClearFilters}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Zurücksetzen
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Custom date range and team filter */}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="space-y-2">
           <Label className="text-sm font-semibold">Von</Label>
           <Input
-            className="min-h-[44px] w-full sm:w-auto"
+            className={`min-h-[44px] w-full sm:w-auto ${
+              !dateValidation.isValid && filterDateFrom ? 'border-destructive focus-visible:ring-destructive' : ''
+            }`}
+            max={filterDateTo || todayStr}
             type="date"
             value={filterDateFrom}
-            onChange={(e) => setFilterDateFrom(e.target.value)}
+            onChange={(e) => handleDateFromChange(e.target.value)}
           />
         </div>
         <div className="space-y-2">
           <Label className="text-sm font-semibold">Bis</Label>
           <Input
-            className="min-h-[44px] w-full sm:w-auto"
+            className={`min-h-[44px] w-full sm:w-auto ${
+              !dateValidation.isValid && filterDateTo ? 'border-destructive focus-visible:ring-destructive' : ''
+            }`}
+            max={todayStr}
+            min={filterDateFrom || undefined}
             type="date"
             value={filterDateTo}
-            onChange={(e) => setFilterDateTo(e.target.value)}
+            onChange={(e) => handleDateToChange(e.target.value)}
           />
         </div>
         <div className="space-y-2 flex-1 min-w-[180px]">
@@ -138,6 +291,11 @@ const AdminPurchasesTab = () => {
           </Select>
         </div>
       </div>
+
+      {/* Validation error message */}
+      {dateValidation.error && (
+        <p className="text-sm text-destructive font-medium">{dateValidation.error}</p>
+      )}
 
       {!isLoading && (
         <p className="text-sm text-muted-foreground">{filteredPurchases.length} Einträge geladen</p>

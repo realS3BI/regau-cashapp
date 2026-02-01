@@ -36,6 +36,27 @@ export const listForAdmin = query({
   },
 });
 
+export const listForAdminWithProductCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query('categories').withIndex('by_order').collect();
+    const sorted = all.sort((a, b) => a.order - b.order);
+
+    const products = await ctx.db.query('products').collect();
+    const nonDeleted = products.filter((p) => p.deletedAt === undefined);
+    const countByCategory = new Map<string, number>();
+    for (const p of nonDeleted) {
+      const key = p.categoryId;
+      countByCategory.set(key, (countByCategory.get(key) ?? 0) + 1);
+    }
+
+    return sorted.map((c) => ({
+      ...c,
+      productCount: countByCategory.get(c._id) ?? 0,
+    }));
+  },
+});
+
 export const create = mutation({
   args: {
     active: v.optional(v.boolean()),
@@ -69,5 +90,28 @@ export const remove = mutation({
   args: { id: v.id('categories') },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
+  },
+});
+
+export const updateManyActive = mutation({
+  args: {
+    active: v.boolean(),
+    ids: v.array(v.id('categories')),
+  },
+  handler: async (ctx, args) => {
+    for (const id of args.ids) {
+      await ctx.db.patch(id, { active: args.active });
+    }
+  },
+});
+
+export const reorder = mutation({
+  args: {
+    orderedIds: v.array(v.id('categories')),
+  },
+  handler: async (ctx, args) => {
+    for (let i = 0; i < args.orderedIds.length; i++) {
+      await ctx.db.patch(args.orderedIds[i], { order: i });
+    }
   },
 });

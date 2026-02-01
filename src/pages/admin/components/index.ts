@@ -5,3 +5,4 @@ export { default as AdminOverviewTab } from './AdminOverviewTab';
 export { default as AdminProductsTab } from './AdminProductsTab';
 export { default as AdminPurchasesTab } from './AdminPurchasesTab';
 export { default as AdminTeamsTab } from './AdminTeamsTab';
+export { default as AdminTemplateTab } from './AdminTemplateTab';

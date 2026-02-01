@@ -2,14 +2,14 @@
  * Formatiert einen Betrag in Cent als Euro (z.B. 499 → "4,99 €").
  * Alle Preise und Beträge werden in der App in Cent gespeichert.
  */
-export const formatCurrency = (amountInCents: number) => {
+export const formatCurrency = (amountInCents: number): string => {
   return new Intl.NumberFormat('de-DE', {
     currency: 'EUR',
     style: 'currency',
   }).format(amountInCents / 100);
 };
 
-export const formatDate = (date: Date) => {
+export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat('de-DE', {
     day: 'numeric',
     month: 'long',
@@ -17,13 +17,13 @@ export const formatDate = (date: Date) => {
   }).format(date);
 };
 
-export const formatTime = (date: Date) => {
+export const formatTime = (date: Date): string => {
   return new Intl.DateTimeFormat('de-DE', {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date);
 };
 
-export const formatDateTime = (date: Date) => {
+export const formatDateTime = (date: Date): string => {
   return `${formatDate(date)} ${formatTime(date)}`;
 };

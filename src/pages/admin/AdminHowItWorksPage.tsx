@@ -19,7 +19,7 @@ const AdminHowItWorksPage = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-background via-background to-muted/30 w-full">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-linear-to-br from-background via-background to-muted/30 w-full">
       <div className="max-w-3xl mx-auto">
         <Button variant="ghost" className="mb-8 -ml-2" asChild>
           <Link to="/admin">

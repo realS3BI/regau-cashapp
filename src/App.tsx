@@ -17,9 +17,9 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/so-funktionierts" element={<HowItWorksPage />} />
-            <Route path="/:teamSlug" element={<TeamPage />} />
-            <Route path="/admin/erklaerung" element={<AdminHowItWorksPage />} />
+            <Route path="/help" element={<HowItWorksPage />} />
+            <Route path="/help/admin" element={<AdminHowItWorksPage />} />
+            <Route path="/team/:slug" element={<TeamPage />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
           </Routes>

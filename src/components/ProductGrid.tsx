@@ -1,6 +1,6 @@
+import { useMemo } from 'react';
 import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
-import { Id } from '../../convex/_generated/dataModel';
+import { api, Doc, Id } from '@convex';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { formatCurrency } from '@/lib/format';
@@ -12,20 +12,31 @@ interface ProductGridProps {
   onAddToCart: (product: { _id: Id<'products'>; name: string; price: number }) => void;
 }
 
+const filterProductsByCategory = (
+  products: Doc<'products'>[] | undefined,
+  selectedCategoryId: CategorySelection
+): Doc<'products'>[] | undefined => {
+  if (!products) return undefined;
+
+  const filtered =
+    selectedCategoryId === 'favorites'
+      ? products.filter((product) => product.isFavorite === true)
+      : selectedCategoryId
+        ? products.filter((product) => product.categoryId === selectedCategoryId)
+        : products;
+
+  return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+};
+
+const getProductPrice = (product: Doc<'products'>): number => product.priceA ?? product.priceB ?? 0;
+
 const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGridProps) => {
   const allProducts = useQuery(api.products.listAllActive);
 
-  const products = allProducts
-    ? (() => {
-        const list =
-          categoryId === 'favorites'
-            ? allProducts.filter((p) => p.isFavorite === true)
-            : categoryId
-              ? allProducts.filter((p) => p.categoryId === categoryId)
-              : allProducts;
-        return [...list].sort((a, b) => a.name.localeCompare(b.name, 'de'));
-      })()
-    : undefined;
+  const products = useMemo(
+    () => filterProductsByCategory(allProducts, categoryId),
+    [allProducts, categoryId]
+  );
 
   if (!products) {
     return (
@@ -71,13 +82,23 @@ const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGri
         <Card
           key={product._id}
           className={`flex w-[200px] cursor-pointer flex-col border-2 border-transparent transition-all duration-200 hover:border-primary hover:shadow-lg group ${lastAddedProductId === product._id ? 'animate-add-to-cart' : ''}`}
-          onClick={() => onAddToCart(product)}
+          onClick={() =>
+            onAddToCart({
+              _id: product._id,
+              name: product.name,
+              price: getProductPrice(product),
+            })
+          }
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              onAddToCart(product);
+              onAddToCart({
+                _id: product._id,
+                name: product.name,
+                price: getProductPrice(product),
+              });
             }
           }}
         >
@@ -87,7 +108,9 @@ const ProductGrid = ({ categoryId, lastAddedProductId, onAddToCart }: ProductGri
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 pt-1 px-4">
-            <p className="text-sm text-muted-foreground">{formatCurrency(product.price)}</p>
+            <p className="text-sm text-muted-foreground">
+              {formatCurrency(getProductPrice(product))}
+            </p>
           </CardContent>
         </Card>
       ))}

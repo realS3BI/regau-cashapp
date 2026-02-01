@@ -1,8 +1,14 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
-const isTeamVisible = (doc: { active?: boolean; deletedAt?: number }) =>
-  doc.deletedAt == null && doc.active !== false;
+interface TeamDocument {
+  active?: boolean;
+  deletedAt?: number;
+}
+
+const isTeamVisible = (team: TeamDocument): boolean => {
+  return team.deletedAt == null && team.active !== false;
+};
 
 export const list = query({
   handler: async (ctx) => {
@@ -76,13 +82,13 @@ export const update = mutation({
       }
     }
 
-    const patch: Record<string, unknown> = {};
-    if (updates.name != null) patch.name = updates.name;
-    if (updates.slug != null) patch.slug = updates.slug;
-    if (updates.active != null) patch.active = updates.active;
+    const patchUpdates: Partial<{ active: boolean; name: string; slug: string }> = {};
+    if (updates.name != null) patchUpdates.name = updates.name;
+    if (updates.slug != null) patchUpdates.slug = updates.slug;
+    if (updates.active != null) patchUpdates.active = updates.active;
 
-    if (Object.keys(patch).length === 0) return id;
-    await ctx.db.patch(id, patch);
+    if (Object.keys(patchUpdates).length === 0) return id;
+    await ctx.db.patch(id, patchUpdates);
     return id;
   },
 });

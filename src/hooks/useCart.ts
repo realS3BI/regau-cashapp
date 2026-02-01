@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Id } from '../../convex/_generated/dataModel';
+import { Id } from '@convex';
 
 export interface CartItem {
   name: string;
@@ -8,67 +8,69 @@ export interface CartItem {
   quantity: number;
 }
 
-/** Stellt sicher: maximal ein Eintrag pro productId, Mengen zusammengefasst. */
 const normalizeByProductId = (items: CartItem[]): CartItem[] => {
-  const byId = new Map<Id<'products'>, CartItem>();
+  const itemsById = new Map<Id<'products'>, CartItem>();
   for (const item of items) {
-    const existing = byId.get(item.productId);
-    if (existing) {
-      byId.set(item.productId, {
-        ...existing,
-        quantity: existing.quantity + item.quantity,
+    const existingItem = itemsById.get(item.productId);
+    if (existingItem) {
+      itemsById.set(item.productId, {
+        ...existingItem,
+        quantity: existingItem.quantity + item.quantity,
       });
     } else {
-      byId.set(item.productId, { ...item });
+      itemsById.set(item.productId, { ...item });
     }
   }
-  return Array.from(byId.values());
+  return Array.from(itemsById.values());
 };
 
 export const useCart = () => {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addItem = useCallback((product: { _id: Id<'products'>; name: string; price: number }) => {
-    setItems((prev) => {
-      const next = [
-        ...prev,
-        {
-          name: product.name,
-          price: product.price,
-          productId: product._id,
-          quantity: 1,
-        },
-      ];
-      return normalizeByProductId(next);
-    });
-  }, []);
+  const addItem = useCallback(
+    (product: { _id: Id<'products'>; name: string; price: number }): void => {
+      setItems((previousItems) => {
+        const nextItems = [
+          ...previousItems,
+          {
+            name: product.name,
+            price: product.price,
+            productId: product._id,
+            quantity: 1,
+          },
+        ];
+        return normalizeByProductId(nextItems);
+      });
+    },
+    []
+  );
 
-  const removeItem = useCallback((productId: Id<'products'>) => {
-    setItems((prev) => prev.filter((item) => item.productId !== productId));
+  const removeItem = useCallback((productId: Id<'products'>): void => {
+    setItems((previousItems) => previousItems.filter((item) => item.productId !== productId));
   }, []);
 
   const updateQuantity = useCallback(
-    (productId: Id<'products'>, quantity: number) => {
+    (productId: Id<'products'>, quantity: number): void => {
       if (quantity <= 0) {
         removeItem(productId);
         return;
       }
-      setItems((prev) =>
-        prev.map((item) => (item.productId === productId ? { ...item, quantity } : item))
+      setItems((previousItems) =>
+        previousItems.map((item) => (item.productId === productId ? { ...item, quantity } : item))
       );
     },
     [removeItem]
   );
 
-  const clearCart = useCallback(() => {
+  const clearCart = useCallback((): void => {
     setItems([]);
   }, []);
 
-  const getTotal = useCallback(() => {
+  const getTotal = useCallback((): number => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }, [items]);
 
-  const getItemCount = useCallback(() => {
+  const getItemCount = useCallback((): number => {
     return items.reduce((sum, item) => sum + item.quantity, 0);
   }, [items]);
 

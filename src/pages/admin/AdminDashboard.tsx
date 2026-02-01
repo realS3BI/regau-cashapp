@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '@convex';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { clearAdminAuth, getAdminAuth } from '@/lib/auth';
+import AdminCategoriesTab from '@/features/admin/categories/AdminCategoriesTab';
+import AdminProductsTab from '@/features/admin/products/AdminProductsTab';
+import AdminPurchasesTab from '@/features/admin/purchases/AdminPurchasesTab';
+import AdminTeamsTab from '@/features/admin/teams/AdminTeamsTab';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
-  AdminCategoriesTab,
   AdminDashboardSkeleton,
   AdminHeader,
   AdminOverviewTab,
-  AdminProductsTab,
-  AdminPurchasesTab,
-  AdminTeamsTab,
   AdminTemplateTab,
 } from './components';
 
@@ -28,9 +28,7 @@ const AdminDashboard = () => {
   const products = useQuery(api.products.listForAdmin);
   const teams = useQuery(api.teams.listForAdmin);
 
-  const templatesTabLabel = activeTemplate
-    ? `Preisvorlagen (${activeTemplate})`
-    : 'Preisvorlagen';
+  const templatesTabLabel = activeTemplate ? `Preisvorlagen (${activeTemplate})` : 'Preisvorlagen';
 
   useEffect(() => {
     if (!getAdminAuth()) {

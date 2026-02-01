@@ -15,9 +15,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@convex": ["convex/types"],
       "convex/*": ["convex/*"]
     }
   },
-  "include": ["src", "convex"],
+  "include": ["convex", "scripts", "src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

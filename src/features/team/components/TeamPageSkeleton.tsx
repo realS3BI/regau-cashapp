@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const TeamPageSkeleton = () => (
   <div className="min-h-screen flex flex-col bg-background w-full">
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 shadow-sm w-full">
+    <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-10 shadow-sm w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
         <Skeleton className="min-h-[44px] min-w-[44px] rounded-lg shrink-0" />
         <Skeleton className="h-8 flex-1 max-w-[240px]" />
@@ -25,7 +25,7 @@ const TeamPageSkeleton = () => (
         <ScrollArea className="min-h-0 flex-1">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pr-4">
             {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} className="rounded-xl aspect-[3/4] w-full" />
+              <Skeleton key={i} className="rounded-xl aspect-3/4 w-full" />
             ))}
           </div>
         </ScrollArea>

@@ -36,23 +36,33 @@ export const listForAdmin = query({
   },
 });
 
+interface ProductWithCategory {
+  categoryId: string;
+  deletedAt?: number;
+}
+
+const countProductsByCategory = (products: ProductWithCategory[]): Map<string, number> => {
+  const nonDeletedProducts = products.filter((product) => product.deletedAt === undefined);
+  const countByCategoryId = new Map<string, number>();
+  for (const product of nonDeletedProducts) {
+    const categoryId = product.categoryId;
+    countByCategoryId.set(categoryId, (countByCategoryId.get(categoryId) ?? 0) + 1);
+  }
+  return countByCategoryId;
+};
+
 export const listForAdminWithProductCount = query({
   args: {},
   handler: async (ctx) => {
-    const all = await ctx.db.query('categories').withIndex('by_order').collect();
-    const sorted = all.sort((a, b) => a.order - b.order);
+    const allCategories = await ctx.db.query('categories').withIndex('by_order').collect();
+    const sortedCategories = allCategories.sort((a, b) => a.order - b.order);
 
-    const products = await ctx.db.query('products').collect();
-    const nonDeleted = products.filter((p) => p.deletedAt === undefined);
-    const countByCategory = new Map<string, number>();
-    for (const p of nonDeleted) {
-      const key = p.categoryId;
-      countByCategory.set(key, (countByCategory.get(key) ?? 0) + 1);
-    }
+    const allProducts = await ctx.db.query('products').collect();
+    const productCountByCategory = countProductsByCategory(allProducts);
 
-    return sorted.map((c) => ({
-      ...c,
-      productCount: countByCategory.get(c._id) ?? 0,
+    return sortedCategories.map((category) => ({
+      ...category,
+      productCount: productCountByCategory.get(category._id) ?? 0,
     }));
   },
 });
@@ -110,8 +120,8 @@ export const reorder = mutation({
     orderedIds: v.array(v.id('categories')),
   },
   handler: async (ctx, args) => {
-    for (let i = 0; i < args.orderedIds.length; i++) {
-      await ctx.db.patch(args.orderedIds[i], { order: i });
+    for (let index = 0; index < args.orderedIds.length; index++) {
+      await ctx.db.patch(args.orderedIds[index], { order: index });
     }
   },
 });

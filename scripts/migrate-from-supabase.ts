@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { ConvexHttpClient } from 'convex/browser';
 import dotenv from 'dotenv';
-import { api } from '../convex/_generated/api';
-import { Id } from '../convex/_generated/dataModel';
+import { api, Doc, Id } from '@convex';
 
 dotenv.config();
 
@@ -248,7 +247,9 @@ const main = async () => {
 
   // Hole alle Products einmal für die Purchase-Migration
   const allProducts = await convex.query(api.products.listForAdmin, {});
-  const productIdToProductMap = new Map(allProducts.map((p) => [p._id, p]));
+  const productIdToProductMap = new Map<Id<'products'>, Doc<'products'>>(
+    allProducts.map((p) => [p._id, p])
+  );
 
   let purchaseCount = 0;
   let skippedCount = 0;

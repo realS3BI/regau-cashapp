@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../../convex/_generated/api';
-import { Id } from '../../../../convex/_generated/dataModel';
+import { api, Id } from '@convex';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,8 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { formatCurrency } from '@/lib/format';
+import { getVisibleProducts, convertCentsToEuro } from '@/lib/product-utils';
 import { Check, Pencil, X } from 'lucide-react';
 
 type Template = 'A' | 'B';
@@ -41,46 +41,40 @@ const AdminTemplateTab = () => {
   const [isEditingAllPrices, setIsEditingAllPrices] = useState(false);
   const [editPrices, setEditPrices] = useState<EditPricesMap>({});
 
-  const visibleProducts = (products?.filter((p) => !p.deletedAt) ?? []).filter(
-    (p) => filterCategoryId === 'all' || p.categoryId === filterCategoryId
-  );
+  const visibleProducts = getVisibleProducts(products, filterCategoryId);
   const productsLoading = products === undefined || categories === undefined;
 
   const handleTemplateChange = async (template: Template) => {
     try {
       await setActiveTemplate({ template });
-      toast.success('Erfolgreich', {
-        description: `Vorlage ${template} ist jetzt aktiv`,
-      });
+      toast.success(`Vorlage ${template} ist jetzt aktiv`);
     } catch (error) {
-      toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Fehler beim Umschalten',
-      });
+      toast.error(error, 'Fehler beim Umschalten');
     }
   };
 
-  const startEditingAllPrices = () => {
-    const initial: EditPricesMap = {};
-    visibleProducts.forEach((p) => {
-      initial[p._id] = {
-        priceA: (p.priceA / 100).toFixed(2),
-        priceB: (p.priceB / 100).toFixed(2),
+  const startEditingAllPrices = (): void => {
+    const initialPrices: EditPricesMap = {};
+    visibleProducts.forEach((product) => {
+      initialPrices[product._id] = {
+        priceA: convertCentsToEuro(product.priceA),
+        priceB: convertCentsToEuro(product.priceB),
       };
     });
-    setEditPrices(initial);
+    setEditPrices(initialPrices);
     setIsEditingAllPrices(true);
   };
 
-  const cancelEditingAllPrices = () => {
+  const cancelEditingAllPrices = (): void => {
     setIsEditingAllPrices(false);
     setEditPrices({});
   };
 
-  const updateEditPrice = (productId: string, field: 'priceA' | 'priceB', value: string) => {
-    setEditPrices((prev) => ({
-      ...prev,
+  const updateEditPrice = (productId: string, field: 'priceA' | 'priceB', value: string): void => {
+    setEditPrices((previousPrices) => ({
+      ...previousPrices,
       [productId]: {
-        ...prev[productId],
+        ...previousPrices[productId],
         [field]: value,
       },
     }));
@@ -95,9 +89,7 @@ const AdminTemplateTab = () => {
       const priceA = Math.round(parseFloat(edited.priceA) * 100);
       const priceB = Math.round(parseFloat(edited.priceB) * 100);
       if (isNaN(priceA) || priceA < 0 || isNaN(priceB) || priceB < 0) {
-        toast.error('Fehler', {
-          description: `Ungültiger Preis bei "${product.name}"`,
-        });
+        toast.error(null, `Ungültiger Preis bei "${product.name}"`, 'Fehler beim Speichern');
         hasError = true;
         break;
       }
@@ -109,9 +101,7 @@ const AdminTemplateTab = () => {
           priceB,
         });
       } catch (error) {
-        toast.error('Fehler', {
-          description: error instanceof Error ? error.message : 'Fehler beim Speichern',
-        });
+        toast.error(error, 'Fehler beim Speichern');
         hasError = true;
         break;
       }
@@ -119,7 +109,7 @@ const AdminTemplateTab = () => {
     if (!hasError) {
       setIsEditingAllPrices(false);
       setEditPrices({});
-      toast.success('Erfolgreich', { description: 'Alle Preise gespeichert' });
+      toast.success('Alle Preise gespeichert');
     }
   };
 
@@ -301,36 +291,42 @@ const AdminTemplateTab = () => {
               </TableHeader>
               <TableBody>
                 {visibleProducts.map((product) => {
-                  const category = categories?.find((c) => c._id === product.categoryId);
-                  const edited = editPrices[product._id];
+                  const category = categories?.find(
+                    (category) => category._id === product.categoryId
+                  );
+                  const editedPrices = editPrices[product._id];
 
                   return (
                     <TableRow key={product._id} className="hover:bg-muted/50">
                       <TableCell className="font-semibold py-4">{product.name}</TableCell>
                       <TableCell className="py-4">{category?.name || '-'}</TableCell>
                       <TableCell className={`py-4 ${activeTemplate === 'A' ? 'bg-primary/5' : ''}`}>
-                        {isEditingAllPrices && edited ? (
+                        {isEditingAllPrices && editedPrices ? (
                           <Input
                             className="w-24 h-9"
                             type="number"
                             step="0.01"
                             min="0"
-                            value={edited.priceA}
-                            onChange={(e) => updateEditPrice(product._id, 'priceA', e.target.value)}
+                            value={editedPrices.priceA}
+                            onChange={(event) =>
+                              updateEditPrice(product._id, 'priceA', event.target.value)
+                            }
                           />
                         ) : (
                           <span className="font-semibold">{formatCurrency(product.priceA)}</span>
                         )}
                       </TableCell>
                       <TableCell className={`py-4 ${activeTemplate === 'B' ? 'bg-primary/5' : ''}`}>
-                        {isEditingAllPrices && edited ? (
+                        {isEditingAllPrices && editedPrices ? (
                           <Input
                             className="w-24 h-9"
                             type="number"
                             step="0.01"
                             min="0"
-                            value={edited.priceB}
-                            onChange={(e) => updateEditPrice(product._id, 'priceB', e.target.value)}
+                            value={editedPrices.priceB}
+                            onChange={(event) =>
+                              updateEditPrice(product._id, 'priceB', event.target.value)
+                            }
                           />
                         ) : (
                           <span className="font-semibold">{formatCurrency(product.priceB)}</span>

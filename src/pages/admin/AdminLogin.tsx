@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '@convex';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { getAdminAuth, setAdminAuth } from '@/lib/auth';
 import { Lock } from 'lucide-react';
 
@@ -22,8 +22,8 @@ const AdminLogin = () => {
     }
   }, [navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault();
     setIsLoading(true);
 
     try {
@@ -31,25 +31,19 @@ const AdminLogin = () => {
       if (isValid) {
         setAdminAuth();
         navigate('/admin');
-        toast.success('Erfolgreich', {
-          description: 'Erfolgreich angemeldet',
-        });
+        toast.success('Erfolgreich angemeldet');
       } else {
-        toast.error('Fehler', {
-          description: 'Falsches Passwort',
-        });
+        toast.error(null, 'Falsches Passwort', 'Anmeldung fehlgeschlagen');
       }
     } catch (error) {
-      toast.error('Fehler', {
-        description: error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten',
-      });
+      toast.error(error, 'Anmeldung fehlgeschlagen');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-background via-background to-muted/30">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-linear-to-br from-background via-background to-muted/30">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center space-y-6 pb-8">
           <div className="flex items-center justify-center">

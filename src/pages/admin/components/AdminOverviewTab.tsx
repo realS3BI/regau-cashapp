@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from 'convex/react';
-import { api } from '../../../../convex/_generated/api';
+import { api } from '@convex';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -112,7 +112,7 @@ const AdminOverviewTab = () => {
 
       <div className="flex justify-center pt-2">
         <Button asChild className="text-muted-foreground" variant="link">
-          <Link to="/admin/erklaerung">
+          <Link to="/help/admin">
             <HelpCircle className="mr-2 h-4 w-4" />
             So funktioniert der Admin-Bereich
           </Link>

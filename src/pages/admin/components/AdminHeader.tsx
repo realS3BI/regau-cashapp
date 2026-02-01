@@ -10,7 +10,7 @@ const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="border-b sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button

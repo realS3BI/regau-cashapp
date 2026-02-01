@@ -14,7 +14,8 @@ export const removeProductPriceField = mutation({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const doc = product as any;
       if (doc.price === undefined) continue;
-      const { _id, price: _drop, ...rest } = doc;
+      const { _id, price, ...rest } = doc;
+      void price;
       await ctx.db.replace(_id, rest);
       count++;
     }

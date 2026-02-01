@@ -1,6 +1,6 @@
 import { useQuery } from 'convex/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../../convex/_generated/api';
+import { api } from '@convex';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,7 +11,7 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-background via-background to-muted/30 w-full">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-linear-to-br from-background via-background to-muted/30 w-full">
       <div className="w-full">
         <div className="text-center mb-12 space-y-4">
           <div className="flex items-center justify-center gap-4 mb-6">
@@ -22,7 +22,7 @@ const HomePage = () => {
           </div>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">Team auswählen</p>
           <Button variant="link" className="text-muted-foreground" asChild>
-            <Link to="/so-funktionierts">
+            <Link to="/help">
               <HelpCircle className="mr-2 h-4 w-4" />
               So funktioniert's
             </Link>
@@ -66,7 +66,7 @@ const HomePage = () => {
               <Card
                 key={team._id}
                 className="cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-200 min-h-[160px] group"
-                onClick={() => navigate(`/${team.slug}`)}
+                onClick={() => navigate(`/team/${team.slug}`)}
               >
                 <CardHeader className="pb-4 space-y-2">
                   <CardTitle className="text-2xl group-hover:text-primary transition-colors">
@@ -76,7 +76,7 @@ const HomePage = () => {
                 <CardContent className="pt-2">
                   <Button
                     className="w-full min-h-[44px] font-semibold"
-                    onClick={() => navigate(`/${team.slug}`)}
+                    onClick={() => navigate(`/team/${team.slug}`)}
                   >
                     Auswählen
                   </Button>

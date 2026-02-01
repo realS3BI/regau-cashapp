@@ -11,17 +11,24 @@ export type UseResizablePanelsOptions = {
   storageKey: string;
 };
 
-const getStoredWidth = (key: string, defaultVal: number, min: number, max: number): number => {
+const getStoredWidth = (
+  storageKey: string,
+  defaultValue: number,
+  minWidth: number,
+  maxWidth: number
+): number => {
   try {
-    const v = sessionStorage.getItem(key);
-    if (v != null) {
-      const n = parseInt(v, 10);
-      if (!Number.isNaN(n) && n >= min && n <= max) return n;
+    const storedValue = sessionStorage.getItem(storageKey);
+    if (storedValue != null) {
+      const parsedValue = parseInt(storedValue, 10);
+      if (!Number.isNaN(parsedValue) && parsedValue >= minWidth && parsedValue <= maxWidth) {
+        return parsedValue;
+      }
     }
   } catch {
-    // ignore
+    // SessionStorage access failed, use default
   }
-  return defaultVal;
+  return defaultValue;
 };
 
 export const useResizablePanels = (options: UseResizablePanelsOptions) => {
@@ -39,36 +46,36 @@ export const useResizablePanels = (options: UseResizablePanelsOptions) => {
   const [isResizing, setIsResizing] = useState(false);
 
   const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
+    (event: MouseEvent): void => {
       if (!isResizing) return;
-      const raw = side === 'left' ? e.clientX : window.innerWidth - e.clientX;
-      const w = Math.min(maxWidth, Math.max(minWidth, raw));
-      setWidth(w);
+      const rawWidth = side === 'left' ? event.clientX : window.innerWidth - event.clientX;
+      const clampedWidth = Math.min(maxWidth, Math.max(minWidth, rawWidth));
+      setWidth(clampedWidth);
     },
     [isResizing, maxWidth, minWidth, side]
   );
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((): void => {
     setIsResizing(false);
   }, []);
 
   const handleTouchMove = useCallback(
-    (e: TouchEvent) => {
+    (event: TouchEvent): void => {
       if (!isResizing) return;
-      e.preventDefault();
-      const clientX = e.touches[0].clientX;
-      const raw = side === 'left' ? clientX : window.innerWidth - clientX;
-      const w = Math.min(maxWidth, Math.max(minWidth, raw));
-      setWidth(w);
+      event.preventDefault();
+      const clientX = event.touches[0].clientX;
+      const rawWidth = side === 'left' ? clientX : window.innerWidth - clientX;
+      const clampedWidth = Math.min(maxWidth, Math.max(minWidth, rawWidth));
+      setWidth(clampedWidth);
     },
     [isResizing, maxWidth, minWidth, side]
   );
 
-  const handleTouchEnd = useCallback(() => {
+  const handleTouchEnd = useCallback((): void => {
     setIsResizing(false);
   }, []);
 
-  const startResize = useCallback(() => {
+  const startResize = useCallback((): void => {
     setIsResizing(true);
   }, []);
 

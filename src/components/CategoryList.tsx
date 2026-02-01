@@ -1,6 +1,5 @@
 import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
-import { Id } from '../../convex/_generated/dataModel';
+import { api, Id } from '@convex';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';

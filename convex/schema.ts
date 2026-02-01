@@ -19,8 +19,8 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     isFavorite: v.optional(v.boolean()),
     name: v.string(),
-    priceA: v.optional(v.number()),
-    priceB: v.optional(v.number()),
+    priceA: v.number(),
+    priceB: v.number(),
     updatedAt: v.number(),
   })
     .index('by_category', ['categoryId'])

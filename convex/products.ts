@@ -118,21 +118,6 @@ export const update = mutation({
   },
 });
 
-export const updatePrice = mutation({
-  args: {
-    id: v.id('products'),
-    price: v.number(),
-    template: v.union(v.literal('A'), v.literal('B')),
-  },
-  handler: async (ctx, args) => {
-    const update = args.template === 'A' ? { priceA: args.price } : { priceB: args.price };
-    await ctx.db.patch(args.id, {
-      ...update,
-      updatedAt: Date.now(),
-    });
-  },
-});
-
 export const remove = mutation({
   args: { id: v.id('products') },
   handler: async (ctx, args) => {

@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Doc, Id } from '@convex';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/lib/toast';
-import { History } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import { useBookings } from '@/features/team/bookings/hooks/useBookings';
 import { BookingsTab, ProductsTab, TodaySummary } from '@/features/team/bookings/components';
 
@@ -14,10 +14,14 @@ interface LastBookingsSheetProps {
 }
 
 const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProps) => {
-  const { productSalesToday, recentPurchases, removePurchase, todayTotal } = useBookings(
-    teamId,
-    open
-  );
+  const [loadOlderBookings, setLoadOlderBookings] = useState(false);
+
+  useEffect(() => {
+    if (!open) setLoadOlderBookings(false);
+  }, [open]);
+
+  const { olderPurchases, productSalesToday, removePurchase, todayPurchasesForList, todayTotal } =
+    useBookings(teamId, open, loadOlderBookings);
 
   const handleDelete = useCallback(
     async (event: React.MouseEvent, purchase: Doc<'purchases'>): Promise<void> => {
@@ -37,7 +41,7 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
       <SheetContent className="flex flex-col sm:max-w-md" side="left">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <History />
+            <LayoutDashboard />
             Übersicht
           </SheetTitle>
         </SheetHeader>
@@ -57,8 +61,17 @@ const LastBookingsSheet = ({ onOpenChange, open, teamId }: LastBookingsSheetProp
               Produkte
             </TabsTrigger>
           </TabsList>
-          <BookingsTab onDelete={handleDelete} purchases={recentPurchases} />
-          <ProductsTab isLoading={recentPurchases === undefined} productSales={productSalesToday} />
+          <BookingsTab
+            onLoadMore={() => setLoadOlderBookings(true)}
+            onDelete={handleDelete}
+            olderPurchases={loadOlderBookings ? olderPurchases : undefined}
+            showLoadMoreButton={!loadOlderBookings}
+            todayPurchases={todayPurchasesForList}
+          />
+          <ProductsTab
+            isLoading={todayPurchasesForList === undefined}
+            productSales={productSalesToday}
+          />
         </Tabs>
       </SheetContent>
     </Sheet>

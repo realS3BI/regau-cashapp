@@ -75,7 +75,6 @@ export const ProductDialog = ({
     try {
       const nextOrder = calculateNextCategoryOrder(categories ?? []);
       const categoryId = await createCategory({
-        active: true,
         name: trimmedName,
         order: nextOrder,
       });

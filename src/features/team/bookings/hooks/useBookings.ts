@@ -14,7 +14,14 @@ export const canDeletePurchase = (createdAt: number): boolean => {
   return Date.now() - createdAt < FIVE_MINUTES_MS;
 };
 
-export const useBookings = (teamId: Id<'teams'>, isOpen: boolean) => {
+const TODAY_LIST_LIMIT = 15;
+const OLDER_LIST_LIMIT = 15;
+
+export const useBookings = (
+  teamId: Id<'teams'>,
+  isOpen: boolean,
+  loadOlderBookings: boolean
+) => {
   const todayRange = useMemo(() => {
     if (!isOpen) return null;
     return {
@@ -23,13 +30,20 @@ export const useBookings = (teamId: Id<'teams'>, isOpen: boolean) => {
     };
   }, [isOpen]);
 
-  const recentPurchases = useQuery(
-    api.purchases.getRecentByTeam,
-    isOpen ? { limit: 20, teamId } : 'skip'
+  const startOfTodayMs = useMemo(
+    () => (isOpen ? getStartOfTodayMs() : 0),
+    [isOpen]
   );
+
   const todayPurchases = useQuery(
     api.purchases.getPurchasesByTeamInRange,
     isOpen && todayRange ? { ...todayRange, teamId } : 'skip'
+  );
+  const olderPurchases = useQuery(
+    api.purchases.getPurchasesByTeamBefore,
+    isOpen && loadOlderBookings
+      ? { beforeMs: startOfTodayMs, limit: OLDER_LIST_LIMIT, teamId }
+      : 'skip'
   );
   const removePurchase = useMutation(api.purchases.remove);
 
@@ -51,11 +65,16 @@ export const useBookings = (teamId: Id<'teams'>, isOpen: boolean) => {
       .sort((a, b) => b.quantity - a.quantity);
   }, [todayPurchases]);
 
+  const todayPurchasesForList = useMemo(
+    () => (todayPurchases !== undefined ? todayPurchases.slice(0, TODAY_LIST_LIMIT) : undefined),
+    [todayPurchases]
+  );
+
   return {
+    olderPurchases,
     productSalesToday,
-    recentPurchases,
     removePurchase,
-    todayPurchases,
+    todayPurchasesForList,
     todayTotal,
   };
 };

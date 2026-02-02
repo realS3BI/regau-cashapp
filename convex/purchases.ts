@@ -62,17 +62,35 @@ export const getRecentByTeam = query({
 export const getPurchasesByTeamInRange = query({
   args: {
     endMs: v.number(),
+    limit: v.optional(v.number()),
     startMs: v.number(),
+    teamId: v.id('teams'),
+  },
+  handler: async (ctx, args) => {
+    const q = ctx.db
+      .query('purchases')
+      .withIndex('by_team_created', (q) =>
+        q.eq('teamId', args.teamId).gte('createdAt', args.startMs).lte('createdAt', args.endMs)
+      )
+      .order('desc');
+    return args.limit !== undefined ? await q.take(args.limit) : await q.collect();
+  },
+});
+
+export const getPurchasesByTeamBefore = query({
+  args: {
+    beforeMs: v.number(),
+    limit: v.number(),
     teamId: v.id('teams'),
   },
   handler: async (ctx, args) => {
     return await ctx.db
       .query('purchases')
       .withIndex('by_team_created', (q) =>
-        q.eq('teamId', args.teamId).gte('createdAt', args.startMs).lte('createdAt', args.endMs)
+        q.eq('teamId', args.teamId).lt('createdAt', args.beforeMs)
       )
       .order('desc')
-      .collect();
+      .take(args.limit);
   },
 });
 

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { History } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import CategoryList, { type CategorySelection } from '@/components/CategoryList';
 import ResizableDivider from './ResizableDivider';
 
@@ -46,7 +46,7 @@ export const TeamPageLayout = ({
             onClick={onShowLastBookings}
             variant="outline"
           >
-            <History />
+            <LayoutDashboard />
             Übersicht
           </Button>
         </div>
@@ -69,7 +69,7 @@ export const TeamPageLayout = ({
               onClick={onShowLastBookings}
               variant="outline"
             >
-              <History />
+              <LayoutDashboard />
               Übersicht
             </Button>
           </div>

@@ -3,7 +3,7 @@ import { api, Id } from '@convex';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
-import { Heart } from 'lucide-react';
+import { Heart, LayoutGrid } from 'lucide-react';
 import { Separator } from './ui/separator';
 
 export type CategorySelection = Id<'categories'> | null | 'favorites';
@@ -35,9 +35,10 @@ const CategoryList = ({ onSelectCategory, selectedCategoryId }: CategoryListProp
       <div className="min-w-0 space-y-2">
         <Button
           variant={selectedCategoryId === null ? 'default' : 'outline'}
-          className="w-full min-h-[48px] min-w-0 justify-start truncate text-base font-medium"
+          className="w-full min-h-[48px] min-w-0 justify-start gap-2 truncate text-base font-medium"
           onClick={() => onSelectCategory(null)}
         >
+          <LayoutGrid className="h-4 w-4 shrink-0" />
           <span className="truncate">Alle Produkte</span>
         </Button>
         <Button

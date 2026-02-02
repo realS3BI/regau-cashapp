@@ -5,9 +5,7 @@ export const list = query({
   args: {},
   handler: async (ctx) => {
     const all = await ctx.db.query('categories').withIndex('by_order').collect();
-    return all
-      .filter((c) => c.deletedAt === undefined)
-      .sort((a, b) => a.order - b.order);
+    return all.filter((c) => c.deletedAt === undefined).sort((a, b) => a.order - b.order);
   },
 });
 

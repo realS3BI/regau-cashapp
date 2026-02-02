@@ -21,7 +21,7 @@ const AdminTeamsTab = () => {
     resetForm,
     setFormFromTeam,
     updateFormField,
-    updateNameWithAutoSlug,
+    updateName,
     getFormDataForSubmit,
   } = useTeamForm();
 
@@ -160,7 +160,7 @@ const AdminTeamsTab = () => {
         onClose={handleCloseDialog}
         onDelete={handleDeleteClick}
         onFormChange={updateFormField}
-        onNameChange={updateNameWithAutoSlug}
+        onNameChange={updateName}
         onSubmit={handleSubmit}
         teamSlug={teamSlug}
       />

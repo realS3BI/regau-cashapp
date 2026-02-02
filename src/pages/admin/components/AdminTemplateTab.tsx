@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
@@ -46,6 +46,15 @@ const AdminTemplateTab = () => {
   const [editNameA, setEditNameA] = useState('');
   const [editNameB, setEditNameB] = useState('');
   const [isSavingNames, setIsSavingNames] = useState(false);
+  const templateNamesInitialized = useRef(false);
+
+  useEffect(() => {
+    if (templateNames && !templateNamesInitialized.current) {
+      templateNamesInitialized.current = true;
+      setEditNameA(templateNames.nameA);
+      setEditNameB(templateNames.nameB);
+    }
+  }, [templateNames]);
 
   const visibleProducts = getVisibleProducts(products, filterCategoryId);
   const productsLoading = products === undefined || categories === undefined;
@@ -67,8 +76,6 @@ const AdminTemplateTab = () => {
     try {
       await setTemplateNames({ nameA, nameB });
       toast.success('Vorlagen-Namen gespeichert');
-      setEditNameA('');
-      setEditNameB('');
     } catch (error) {
       toast.error(error, 'Fehler beim Speichern');
     } finally {
@@ -160,21 +167,19 @@ const AdminTemplateTab = () => {
               <Skeleton className="h-10 w-full max-w-xs" />
             </div>
           ) : (
-            <>
-              <div className="grid gap-2 max-w-md">
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="grid gap-2 min-w-[240px]">
                 <Label htmlFor="template-name-a">Name Vorlage 1</Label>
                 <Input
                   id="template-name-a"
-                  placeholder={templateNames.nameA}
                   value={editNameA}
                   onChange={(e) => setEditNameA(e.target.value)}
                 />
               </div>
-              <div className="grid gap-2 max-w-md">
+              <div className="grid gap-2 min-w-[240px]">
                 <Label htmlFor="template-name-b">Name Vorlage 2</Label>
                 <Input
                   id="template-name-b"
-                  placeholder={templateNames.nameB}
                   value={editNameB}
                   onChange={(e) => setEditNameB(e.target.value)}
                 />
@@ -185,7 +190,7 @@ const AdminTemplateTab = () => {
               >
                 Namen speichern
               </Button>
-            </>
+            </div>
           )}
         </CardContent>
       </Card>

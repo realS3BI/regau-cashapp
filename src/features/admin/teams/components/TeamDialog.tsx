@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2 } from 'lucide-react';
 import type { TeamFormData } from '../types';
+import { generateSlug } from '../utils';
 
 interface TeamDialogProps {
   editingTeamId: Id<'teams'> | null;
@@ -46,16 +47,15 @@ export const TeamDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-lg">
-        <DialogHeader className="space-y-3 pb-4">
+        <DialogHeader className="space-y-3">
           <DialogTitle className="text-2xl font-bold">
             {editingTeamId ? 'Team bearbeiten' : 'Team erstellen'}
           </DialogTitle>
           <CardDescription className="text-base leading-relaxed">
-            Die Kurzform wird in der URL verwendet (z.B. /mein-team). Leer lassen für automatische
-            Ableitung aus dem Namen.
+            Die Kurzform ist eine einfachere, kurze Bezeichnung deines Teams.
           </CardDescription>
         </DialogHeader>
-        <div className="space-y-6 py-4">
+        <div className="space-y-6">
           <div className="space-y-3">
             <Label className="text-sm font-semibold" htmlFor="team-name">
               Name
@@ -79,6 +79,19 @@ export const TeamDialog = ({
               value={form.slug}
               onChange={(e) => onFormChange('slug', e.target.value)}
             />
+            {!form.slug && form.name.trim() && (
+              <p className="text-muted-foreground text-sm">
+                Vorschlag:{' '}
+                <button
+                  className="font-mono text-primary hover:underline"
+                  type="button"
+                  onClick={() => onFormChange('slug', generateSlug(form.name))}
+                >
+                  {generateSlug(form.name)}
+                </button>
+                {' — Klick zum Übernehmen'}
+              </p>
+            )}
           </div>
           <div className="flex items-center space-x-3 pt-2">
             <Checkbox
@@ -90,11 +103,11 @@ export const TeamDialog = ({
               }
             />
             <Label className="cursor-pointer font-semibold" htmlFor="team-active">
-              Sichtbar (auf Startseite und per Link erreichbar)
+              Sichtbar
             </Label>
           </div>
         </div>
-        <DialogFooter className="flex flex-wrap gap-2 pt-4">
+        <DialogFooter className="flex flex-wrap gap-2">
           {editingTeamId && (
             <>
               <Button

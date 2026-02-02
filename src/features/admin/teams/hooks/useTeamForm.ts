@@ -28,12 +28,8 @@ export const useTeamForm = () => {
     []
   );
 
-  const updateNameWithAutoSlug = useCallback((name: string): void => {
-    setForm((previousForm) => ({
-      ...previousForm,
-      name,
-      slug: previousForm.slug || generateSlug(name),
-    }));
+  const updateName = useCallback((name: string): void => {
+    setForm((previousForm) => ({ ...previousForm, name }));
   }, []);
 
   const getFormDataForSubmit = useCallback((): {
@@ -55,6 +51,6 @@ export const useTeamForm = () => {
     resetForm,
     setFormFromTeam,
     updateFormField,
-    updateNameWithAutoSlug,
+    updateName,
   };
 };

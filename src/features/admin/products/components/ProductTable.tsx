@@ -22,6 +22,8 @@ interface ProductTableProps {
   onToggleSelectProduct: (productId: Id<'products'>, event: React.MouseEvent) => void;
   products: Doc<'products'>[];
   selectedProductIds: Set<Id<'products'>>;
+  templateNameA: string;
+  templateNameB: string;
 }
 
 export const ProductTable = ({
@@ -37,6 +39,8 @@ export const ProductTable = ({
   onToggleSelectProduct,
   products,
   selectedProductIds,
+  templateNameA,
+  templateNameB,
 }: ProductTableProps) => {
   return (
     <Card className="shadow-md">
@@ -51,6 +55,8 @@ export const ProductTable = ({
           activeTemplate={activeTemplate}
           isAllSelected={isAllSelected}
           onToggleSelectAll={onToggleSelectAll}
+          templateNameA={templateNameA}
+          templateNameB={templateNameB}
         />
         <TableBody>
           {products.map((product) => {

@@ -19,7 +19,8 @@ export const list = query({
 
 export const listForAdmin = query({
   handler: async (ctx) => {
-    return await ctx.db.query('teams').order('desc').collect();
+    const all = await ctx.db.query('teams').order('desc').collect();
+    return all.filter((team) => team.deletedAt == null);
   },
 });
 

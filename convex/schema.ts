@@ -3,7 +3,6 @@ import { v } from 'convex/values';
 
 export default defineSchema({
   categories: defineTable({
-    active: v.boolean(),
     createdAt: v.number(),
     deletedAt: v.optional(v.number()),
     name: v.string(),

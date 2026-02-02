@@ -16,10 +16,8 @@ export const CategoryTableSkeleton = () => {
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="h-14 w-10" />
-            <TableHead className="h-14 w-12" />
             <TableHead className="h-14 font-bold">Name</TableHead>
             <TableHead className="h-14 font-bold">Produkte</TableHead>
-            <TableHead className="h-14 font-bold">Aktiv</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -29,16 +27,10 @@ export const CategoryTableSkeleton = () => {
                 <Skeleton className="h-5 w-5" />
               </TableCell>
               <TableCell className="py-4">
-                <Skeleton className="h-5 w-5" />
-              </TableCell>
-              <TableCell className="py-4">
                 <Skeleton className="h-5 w-32" />
               </TableCell>
               <TableCell className="py-4">
                 <Skeleton className="h-5 w-12" />
-              </TableCell>
-              <TableCell className="py-4">
-                <Skeleton className="h-6 w-16 rounded-full" />
               </TableCell>
             </TableRow>
           ))}

@@ -131,7 +131,6 @@ const main = async () => {
     const icon = uniqueIcons[i];
     try {
       const categoryId = await convex.mutation(api.migration.createCategoryWithDate, {
-        active: true,
         createdAt: epochDate,
         name: icon,
         order: i + 1,

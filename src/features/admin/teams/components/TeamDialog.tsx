@@ -51,7 +51,7 @@ export const TeamDialog = ({
             {editingTeamId ? 'Team bearbeiten' : 'Team erstellen'}
           </DialogTitle>
           <CardDescription className="text-base leading-relaxed">
-            Der Slug wird in der URL verwendet (z.B. /mein-team). Leer lassen für automatische
+            Die Kurzform wird in der URL verwendet (z.B. /mein-team). Leer lassen für automatische
             Ableitung aus dem Namen.
           </CardDescription>
         </DialogHeader>
@@ -70,7 +70,7 @@ export const TeamDialog = ({
           </div>
           <div className="space-y-3">
             <Label className="text-sm font-semibold" htmlFor="team-slug">
-              Slug (URL)
+              Kurzform (URL)
             </Label>
             <Input
               id="team-slug"

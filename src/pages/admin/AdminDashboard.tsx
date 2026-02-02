@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'convex/react';
-import { api } from '@convex';
+import { api } from '../../../convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { clearAdminAuth, getAdminAuth } from '@/lib/auth';
@@ -10,12 +10,7 @@ import AdminProductsTab from '@/features/admin/products/AdminProductsTab';
 import AdminPurchasesTab from '@/features/admin/purchases/AdminPurchasesTab';
 import AdminTeamsTab from '@/features/admin/teams/AdminTeamsTab';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import {
-  AdminDashboardSkeleton,
-  AdminHeader,
-  AdminOverviewTab,
-  AdminTemplateTab,
-} from './components';
+import { AdminHeader, AdminOverviewTab, AdminTemplateTab } from './components';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -24,11 +19,19 @@ const AdminDashboard = () => {
   const [tabsOpen, setTabsOpen] = useState(false);
 
   const activeTemplate = useQuery(api.settings.getActiveTemplate);
-  const categories = useQuery(api.categories.listForAdmin);
-  const products = useQuery(api.products.listForAdmin);
-  const teams = useQuery(api.teams.listForAdmin);
-
-  const templatesTabLabel = activeTemplate ? `Preisvorlagen (${activeTemplate})` : 'Preisvorlagen';
+  const templateNames = useQuery(api.settings.getTemplateNames);
+  const rawDisplayName =
+    activeTemplate === 'A'
+      ? templateNames?.nameA
+      : activeTemplate === 'B'
+        ? templateNames?.nameB
+        : null;
+  const activeDisplayName =
+    rawDisplayName?.trim() ||
+    (activeTemplate === 'A' ? 'Vorlage A' : activeTemplate === 'B' ? 'Vorlage B' : null);
+  const templatesTabLabel = activeDisplayName
+    ? `Preisvorlagen (${activeDisplayName})`
+    : 'Preisvorlagen';
 
   useEffect(() => {
     if (!getAdminAuth()) {
@@ -46,12 +49,6 @@ const AdminDashboard = () => {
     clearAdminAuth();
     navigate('/admin/login');
   };
-
-  const isLoading = categories === undefined || products === undefined || teams === undefined;
-
-  if (isLoading) {
-    return <AdminDashboardSkeleton />;
-  }
 
   return (
     <div className="min-h-screen bg-background">

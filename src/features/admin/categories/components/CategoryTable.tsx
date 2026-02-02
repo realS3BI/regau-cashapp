@@ -2,62 +2,37 @@ import { closestCenter, DndContext, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Id } from '@convex';
 import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CategorySortableRow } from './CategorySortableRow';
-import { CategoryBulkActions } from './CategoryBulkActions';
 import type { CategoryItem } from '../types';
 
 interface CategoryTableProps {
   categories: CategoryItem[];
-  selectedCategoryIds: Set<Id<'categories'>>;
+  editMode: boolean;
   sensors: ReturnType<typeof import('../hooks/useDragAndDrop').useDragAndDropSensors>;
+  onDelete: (id: Id<'categories'>) => void;
   onDragEnd: (event: DragEndEvent) => Promise<void>;
-  onEdit: (category: CategoryItem) => void;
-  onToggleSelectAll: () => void;
-  onToggleSelectCategory: (categoryId: Id<'categories'>, event: React.MouseEvent) => void;
-  onBulkActivate: () => void;
-  onBulkDeactivate: () => void;
-  onClearSelection: () => void;
-  isAllSelected: boolean;
+  onNameSave: (id: Id<'categories'>, name: string) => void;
 }
 
 export const CategoryTable = ({
   categories,
-  isAllSelected,
-  onBulkActivate,
-  onBulkDeactivate,
-  onClearSelection,
+  editMode,
+  onDelete,
   onDragEnd,
-  onEdit,
-  onToggleSelectAll,
-  onToggleSelectCategory,
-  selectedCategoryIds,
+  onNameSave,
   sensors,
 }: CategoryTableProps) => {
   return (
     <Card className="shadow-md">
-      <CategoryBulkActions
-        onActivate={onBulkActivate}
-        onClearSelection={onClearSelection}
-        onDeactivate={onBulkDeactivate}
-        selectedCount={selectedCategoryIds.size}
-      />
       <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={onDragEnd}>
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="h-14 w-10" />
-              <TableHead className="h-14 w-12">
-                <Checkbox
-                  checked={isAllSelected}
-                  className="h-5 w-5"
-                  onCheckedChange={onToggleSelectAll}
-                />
-              </TableHead>
               <TableHead className="h-14 font-bold">Name</TableHead>
               <TableHead className="h-14 font-bold">Produkte</TableHead>
-              <TableHead className="h-14 font-bold">Aktiv</TableHead>
+              {editMode && <TableHead className="h-14 w-12" />}
             </TableRow>
           </TableHeader>
           <SortableContext
@@ -69,9 +44,9 @@ export const CategoryTable = ({
                 <CategorySortableRow
                   key={category._id}
                   category={category}
-                  isSelected={selectedCategoryIds.has(category._id)}
-                  onEdit={() => onEdit(category)}
-                  onToggleSelect={(event) => onToggleSelectCategory(category._id, event)}
+                  editMode={editMode}
+                  onDelete={onDelete}
+                  onNameSave={onNameSave}
                 />
               ))}
             </TableBody>

@@ -17,9 +17,8 @@ export const TeamTable = ({ onEdit, teams }: TeamTableProps) => {
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="h-14 font-bold">Name</TableHead>
-            <TableHead className="h-14 font-bold">Slug</TableHead>
+            <TableHead className="h-14 font-bold">Kurzform</TableHead>
             <TableHead className="h-14 font-bold">Sichtbar</TableHead>
-            <TableHead className="h-14 font-bold">Gelöscht</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

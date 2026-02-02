@@ -45,7 +45,7 @@ const AdminHowItWorksPage = () => {
                 <div>
                   <CardTitle>Teams</CardTitle>
                   <CardDescription>
-                    Teams erscheinen auf der Startseite. Jedes Team hat einen Namen und einen Slug
+                    Teams erscheinen auf der Startseite. Jedes Team hat einen Namen und eine Kurzform
                     (URL-Teil, z.B. „mein-team“ → /mein-team). Du kannst Teams anlegen, bearbeiten
                     und deaktivieren.
                   </CardDescription>

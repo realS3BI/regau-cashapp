@@ -16,9 +16,8 @@ export const TeamTableSkeleton = () => {
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className="h-14 font-bold">Name</TableHead>
-            <TableHead className="h-14 font-bold">Slug</TableHead>
+            <TableHead className="h-14 font-bold">Kurzform</TableHead>
             <TableHead className="h-14 font-bold">Sichtbar</TableHead>
-            <TableHead className="h-14 font-bold">Gelöscht</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -32,9 +31,6 @@ export const TeamTableSkeleton = () => {
               </TableCell>
               <TableCell className="py-4">
                 <Skeleton className="h-6 w-20 rounded-full" />
-              </TableCell>
-              <TableCell className="py-4">
-                <Skeleton className="h-6 w-16 rounded-full" />
               </TableCell>
             </TableRow>
           ))}

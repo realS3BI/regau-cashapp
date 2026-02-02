@@ -25,14 +25,12 @@ export const removeProductPriceField = mutation({
 
 export const createCategoryWithDate = mutation({
   args: {
-    active: v.optional(v.boolean()),
     createdAt: v.number(),
     name: v.string(),
     order: v.number(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert('categories', {
-      active: args.active ?? true,
       createdAt: args.createdAt,
       name: args.name,
       order: args.order,

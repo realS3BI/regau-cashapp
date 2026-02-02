@@ -45,6 +45,8 @@ interface ProductDialogProps {
     priceA?: number;
     priceB?: number;
   }) => Promise<void>;
+  templateNameA: string;
+  templateNameB: string;
 }
 
 export const ProductDialog = ({
@@ -57,6 +59,8 @@ export const ProductDialog = ({
   onFormChange,
   onCreate,
   onUpdate,
+  templateNameA,
+  templateNameB,
 }: ProductDialogProps) => {
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -161,7 +165,7 @@ export const ProductDialog = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-3">
               <Label className="text-sm font-semibold" htmlFor="product-priceA">
-                Preis A (EUR)
+                {templateNameA} (EUR)
               </Label>
               <Input
                 id="product-priceA"
@@ -174,7 +178,7 @@ export const ProductDialog = ({
             </div>
             <div className="space-y-3">
               <Label className="text-sm font-semibold" htmlFor="product-priceB">
-                Preis B (EUR)
+                {templateNameB} (EUR)
               </Label>
               <Input
                 id="product-priceB"

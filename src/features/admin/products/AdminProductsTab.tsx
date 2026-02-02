@@ -16,6 +16,7 @@ import {
 
 const AdminProductsTab = () => {
   const activeTemplate = useQuery(api.settings.getActiveTemplate);
+  const templateNames = useQuery(api.settings.getTemplateNames);
   const categories = useQuery(api.categories.listForAdmin);
   const products = useQuery(api.products.listForAdmin);
   const createProduct = useMutation(api.products.create);
@@ -211,6 +212,8 @@ const AdminProductsTab = () => {
           onToggleSelectProduct={toggleSelectProduct}
           products={visibleProducts}
           selectedProductIds={selectedProductIds}
+          templateNameA={templateNames?.nameA ?? 'Vorlage A'}
+          templateNameB={templateNames?.nameB ?? 'Vorlage B'}
         />
       ) : (
         <ProductEmptyState />
@@ -226,6 +229,8 @@ const AdminProductsTab = () => {
         onFormChange={updateFormField}
         onCreate={handleCreateProduct}
         onUpdate={handleUpdateProduct}
+        templateNameA={templateNames?.nameA ?? 'Vorlage A'}
+        templateNameB={templateNames?.nameB ?? 'Vorlage B'}
       />
     </div>
   );

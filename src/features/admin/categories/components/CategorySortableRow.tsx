@@ -1,24 +1,32 @@
+import { useState, useCallback, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Id } from '@convex';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Trash2 } from 'lucide-react';
 import type { CategoryItem } from '../types';
 
 interface CategorySortableRowProps {
   category: CategoryItem;
-  isSelected: boolean;
-  onEdit: () => void;
-  onToggleSelect: (event: React.MouseEvent) => void;
+  editMode: boolean;
+  onDelete: (id: Id<'categories'>) => void;
+  onNameSave: (id: Id<'categories'>, name: string) => void;
 }
 
 export const CategorySortableRow = ({
   category,
-  isSelected,
-  onEdit,
-  onToggleSelect,
+  editMode,
+  onDelete,
+  onNameSave,
 }: CategorySortableRowProps) => {
+  const [editName, setEditName] = useState(category.name);
+
+  useEffect(() => {
+    setEditName(category.name);
+  }, [category.name]);
+
   const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: category._id,
   });
@@ -33,13 +41,26 @@ export const CategorySortableRow = ({
     event.stopPropagation();
   };
 
+  const handleNameBlur = useCallback((): void => {
+    const trimmed = editName.trim();
+    if (trimmed !== category.name && trimmed.length > 0) {
+      onNameSave(category._id, trimmed);
+    } else {
+      setEditName(category.name);
+    }
+  }, [category._id, category.name, editName, onNameSave]);
+
+  const handleNameKeyDown = useCallback(
+    (event: React.KeyboardEvent): void => {
+      if (event.key === 'Enter') {
+        (event.target as HTMLInputElement).blur();
+      }
+    },
+    []
+  );
+
   return (
-    <TableRow
-      ref={setNodeRef}
-      className="cursor-pointer hover:bg-muted/50"
-      onClick={onEdit}
-      style={dragStyle}
-    >
+    <TableRow ref={setNodeRef} className="hover:bg-muted/50" style={dragStyle}>
       <TableCell
         className="w-10 py-4"
         {...attributes}
@@ -48,16 +69,36 @@ export const CategorySortableRow = ({
       >
         <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
       </TableCell>
-      <TableCell className="w-12 py-4" onClick={onToggleSelect}>
-        <Checkbox checked={isSelected} className="h-5 w-5 pointer-events-none" />
+      <TableCell className="font-semibold py-4">
+        {editMode ? (
+          <Input
+            className="min-h-[40px] font-semibold"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            onBlur={handleNameBlur}
+            onKeyDown={handleNameKeyDown}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          category.name
+        )}
       </TableCell>
-      <TableCell className="font-semibold py-4">{category.name}</TableCell>
       <TableCell className="py-4 font-semibold">{category.productCount ?? 0}</TableCell>
-      <TableCell className="py-4">
-        <Badge className="font-semibold" variant={category.active ? 'default' : 'secondary'}>
-          {category.active ? 'Aktiv' : 'Inaktiv'}
-        </Badge>
-      </TableCell>
+      {editMode && (
+        <TableCell className="w-12 py-4">
+          <Button
+            className="min-h-[36px] text-destructive hover:text-destructive"
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(category._id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </TableCell>
+      )}
     </TableRow>
   );
 };

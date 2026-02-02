@@ -6,7 +6,7 @@ export const list = query({
   handler: async (ctx) => {
     const all = await ctx.db.query('categories').withIndex('by_order').collect();
     return all
-      .filter((c) => c.deletedAt === undefined && c.active)
+      .filter((c) => c.deletedAt === undefined)
       .sort((a, b) => a.order - b.order);
   },
 });
@@ -16,7 +16,7 @@ export const listNonEmpty = query({
   handler: async (ctx) => {
     const all = await ctx.db.query('categories').withIndex('by_order').collect();
     const activeCategories = all
-      .filter((c) => c.deletedAt === undefined && c.active)
+      .filter((c) => c.deletedAt === undefined)
       .sort((a, b) => a.order - b.order);
 
     const products = await ctx.db.query('products').collect();
@@ -69,13 +69,11 @@ export const listForAdminWithProductCount = query({
 
 export const create = mutation({
   args: {
-    active: v.optional(v.boolean()),
     name: v.string(),
     order: v.number(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert('categories', {
-      active: args.active ?? true,
       createdAt: Date.now(),
       name: args.name,
       order: args.order,
@@ -85,7 +83,6 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
-    active: v.optional(v.boolean()),
     id: v.id('categories'),
     name: v.optional(v.string()),
     order: v.optional(v.number()),
@@ -100,18 +97,6 @@ export const remove = mutation({
   args: { id: v.id('categories') },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { deletedAt: Date.now() });
-  },
-});
-
-export const updateManyActive = mutation({
-  args: {
-    active: v.boolean(),
-    ids: v.array(v.id('categories')),
-  },
-  handler: async (ctx, args) => {
-    for (const id of args.ids) {
-      await ctx.db.patch(id, { active: args.active });
-    }
   },
 });
 

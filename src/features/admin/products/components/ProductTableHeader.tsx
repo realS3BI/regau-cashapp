@@ -6,12 +6,16 @@ interface ProductTableHeaderProps {
   activeTemplate: 'A' | 'B';
   isAllSelected: boolean;
   onToggleSelectAll: () => void;
+  templateNameA: string;
+  templateNameB: string;
 }
 
 export const ProductTableHeader = ({
   activeTemplate,
   isAllSelected,
   onToggleSelectAll,
+  templateNameA,
+  templateNameB,
 }: ProductTableHeaderProps) => {
   return (
     <TableHeader>
@@ -29,14 +33,14 @@ export const ProductTableHeader = ({
           className={`h-14 font-bold ${activeTemplate === 'A' ? 'bg-primary/10 text-primary' : ''}`}
         >
           <span className="flex items-center gap-1.5">
-            Preis A{activeTemplate === 'A' && <Check aria-hidden className="h-4 w-4" />}
+            {templateNameA}{activeTemplate === 'A' && <Check aria-hidden className="h-4 w-4" />}
           </span>
         </TableHead>
         <TableHead
           className={`h-14 font-bold ${activeTemplate === 'B' ? 'bg-primary/10 text-primary' : ''}`}
         >
           <span className="flex items-center gap-1.5">
-            Preis B{activeTemplate === 'B' && <Check aria-hidden className="h-4 w-4" />}
+            {templateNameB}{activeTemplate === 'B' && <Check aria-hidden className="h-4 w-4" />}
           </span>
         </TableHead>
         <TableHead className="h-14 w-12 font-bold text-center">Favorit</TableHead>

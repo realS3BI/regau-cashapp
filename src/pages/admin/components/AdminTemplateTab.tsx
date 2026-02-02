@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api, Id } from '@convex';
-import { Badge } from '@/components/ui/badge';
+import { api } from '../../../../convex/_generated/api';
+import { Id } from '../../../../convex/_generated/dataModel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -34,12 +35,17 @@ const AdminTemplateTab = () => {
   const categories = useQuery(api.categories.listForAdmin);
   const products = useQuery(api.products.listForAdmin);
   const activeTemplate = useQuery(api.settings.getActiveTemplate);
+  const templateNames = useQuery(api.settings.getTemplateNames);
   const setActiveTemplate = useMutation(api.settings.setActiveTemplate);
+  const setTemplateNames = useMutation(api.settings.setTemplateNames);
   const updateProduct = useMutation(api.products.update);
 
   const [filterCategoryId, setFilterCategoryId] = useState<Id<'categories'> | 'all'>('all');
   const [isEditingAllPrices, setIsEditingAllPrices] = useState(false);
   const [editPrices, setEditPrices] = useState<EditPricesMap>({});
+  const [editNameA, setEditNameA] = useState('');
+  const [editNameB, setEditNameB] = useState('');
+  const [isSavingNames, setIsSavingNames] = useState(false);
 
   const visibleProducts = getVisibleProducts(products, filterCategoryId);
   const productsLoading = products === undefined || categories === undefined;
@@ -47,9 +53,26 @@ const AdminTemplateTab = () => {
   const handleTemplateChange = async (template: Template) => {
     try {
       await setActiveTemplate({ template });
-      toast.success(`Vorlage ${template} ist jetzt aktiv`);
+      const displayName = template === 'A' ? templateNames?.nameA : templateNames?.nameB;
+      toast.success(`${displayName ?? template} ist jetzt aktiv`);
     } catch (error) {
       toast.error(error, 'Fehler beim Umschalten');
+    }
+  };
+
+  const handleSaveTemplateNames = async () => {
+    const nameA = editNameA.trim() || (templateNames?.nameA ?? 'Vorlage A');
+    const nameB = editNameB.trim() || (templateNames?.nameB ?? 'Vorlage B');
+    setIsSavingNames(true);
+    try {
+      await setTemplateNames({ nameA, nameB });
+      toast.success('Vorlagen-Namen gespeichert');
+      setEditNameA('');
+      setEditNameB('');
+    } catch (error) {
+      toast.error(error, 'Fehler beim Speichern');
+    } finally {
+      setIsSavingNames(false);
     }
   };
 
@@ -121,6 +144,52 @@ const AdminTemplateTab = () => {
         <h2 className="text-2xl font-bold tracking-tight">Preisvorlagen</h2>
       </div>
 
+      {/* Template names settings */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg">Einstellungen: Namen der Vorlagen</CardTitle>
+          <p className="text-sm text-muted-foreground font-normal">
+            Hier kannst du festlegen, wie die beiden Preisvorlagen heißen (z.B. &quot;Standard&quot;
+            und &quot;Extra&quot;). Die Namen erscheinen in den Buttons und Tabellenüberschriften.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {templateNames === undefined ? (
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-10 w-full max-w-xs" />
+              <Skeleton className="h-10 w-full max-w-xs" />
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-2 max-w-md">
+                <Label htmlFor="template-name-a">Name Vorlage 1</Label>
+                <Input
+                  id="template-name-a"
+                  placeholder={templateNames.nameA}
+                  value={editNameA}
+                  onChange={(e) => setEditNameA(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2 max-w-md">
+                <Label htmlFor="template-name-b">Name Vorlage 2</Label>
+                <Input
+                  id="template-name-b"
+                  placeholder={templateNames.nameB}
+                  value={editNameB}
+                  onChange={(e) => setEditNameB(e.target.value)}
+                />
+              </div>
+              <Button
+                disabled={isSavingNames || (!editNameA.trim() && !editNameB.trim())}
+                onClick={handleSaveTemplateNames}
+              >
+                Namen speichern
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Template Selector */}
       <Card className="shadow-md">
         <CardHeader>
@@ -143,24 +212,14 @@ const AdminTemplateTab = () => {
                   variant={activeTemplate === 'A' ? 'default' : 'outline'}
                   onClick={() => handleTemplateChange('A')}
                 >
-                  Vorlage A
-                  {activeTemplate === 'A' && (
-                    <Badge className="ml-2" variant="secondary">
-                      Aktiv
-                    </Badge>
-                  )}
+                  {templateNames?.nameA ?? 'Vorlage A'}
                 </Button>
                 <Button
                   className="min-h-[44px] font-semibold px-8"
                   variant={activeTemplate === 'B' ? 'default' : 'outline'}
                   onClick={() => handleTemplateChange('B')}
                 >
-                  Vorlage B
-                  {activeTemplate === 'B' && (
-                    <Badge className="ml-2" variant="secondary">
-                      Aktiv
-                    </Badge>
-                  )}
+                  {templateNames?.nameB ?? 'Vorlage B'}
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -257,10 +316,10 @@ const AdminTemplateTab = () => {
                     className={`h-14 font-bold ${templateLoading ? '' : activeTemplate === 'A' ? 'bg-primary/10 text-primary' : ''}`}
                   >
                     {templateLoading ? (
-                      'Preis A'
+                      'Preis'
                     ) : (
                       <span className="flex items-center gap-1.5">
-                        Preis A
+                        {templateNames?.nameA ?? 'Vorlage A'}
                         {activeTemplate === 'A' && (
                           <>
                             <Check className="h-4 w-4" aria-hidden />
@@ -274,10 +333,10 @@ const AdminTemplateTab = () => {
                     className={`h-14 font-bold ${templateLoading ? '' : activeTemplate === 'B' ? 'bg-primary/10 text-primary' : ''}`}
                   >
                     {templateLoading ? (
-                      'Preis B'
+                      'Preis'
                     ) : (
                       <span className="flex items-center gap-1.5">
-                        Preis B
+                        {templateNames?.nameB ?? 'Vorlage B'}
                         {activeTemplate === 'B' && (
                           <>
                             <Check className="h-4 w-4" aria-hidden />

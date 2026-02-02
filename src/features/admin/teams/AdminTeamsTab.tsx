@@ -37,7 +37,7 @@ const AdminTeamsTab = () => {
     if (!formData.slug) {
       toast.error(
         null,
-        'Bitte einen gültigen Slug eingeben (z.B. aus dem Namen abgeleitet)',
+        'Bitte eine gültige Kurzform eingeben (z.B. aus dem Namen abgeleitet)',
         'Fehler beim Erstellen des Teams'
       );
       return;
@@ -65,7 +65,7 @@ const AdminTeamsTab = () => {
     if (!formData.slug) {
       toast.error(
         null,
-        'Bitte einen gültigen Slug eingeben',
+        'Bitte eine gültige Kurzform eingeben',
         'Fehler beim Aktualisieren des Teams'
       );
       return;

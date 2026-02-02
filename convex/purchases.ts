@@ -89,9 +89,7 @@ export const getToday = query({
     const endOfToday = startOfToday + 24 * 60 * 60 * 1000 - 1;
     return await ctx.db
       .query('purchases')
-      .withIndex('by_created')
-      .filter((q) => q.gte(q.field('createdAt'), startOfToday))
-      .filter((q) => q.lte(q.field('createdAt'), endOfToday))
+      .withIndex('by_created', (q) => q.gte('createdAt', startOfToday).lte('createdAt', endOfToday))
       .order('desc')
       .collect();
   },
